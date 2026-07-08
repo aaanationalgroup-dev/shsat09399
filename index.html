@@ -130,9 +130,10 @@ button{font-family:var(--sans);cursor:pointer}
 /* ---------- passage view ---------- */
 .reader{
   display:grid;grid-template-columns:46% 54%;
-  height:calc(100vh - 49px);
+  height:calc(100vh - 97px);
+  height:calc(100dvh - 97px);
 }
-.pane{overflow-y:auto;overscroll-behavior:contain}
+.pane{overflow-y:auto;overscroll-behavior:contain;min-height:0;min-width:0;height:100%}
 .pane-poem{
   background:var(--page);
   border-right:1px solid var(--rule);
@@ -257,27 +258,48 @@ button{font-family:var(--sans);cursor:pointer}
 }
 .scorecard .msg{margin-top:10px;font-style:italic;color:var(--faded);font-size:14.5px}
 
-/* mobile tab toggle */
-.mtabs{display:none}
-@media (max-width:860px){
-  .reader{display:block;height:auto}
-  .pane{overflow:visible}
-  .pane-poem{border-right:none;padding:26px 18px 40px}
-  .pane-q{padding:22px 16px 80px}
-  .mtabs{
-    display:flex;position:sticky;top:49px;z-index:15;
-    background:var(--paper);border-bottom:1px solid var(--rule);
-  }
-  .mtabs button{
-    flex:1;padding:12px;background:transparent;border:none;
-    font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--faded);
-    border-bottom:3px solid transparent;
-  }
-  .mtabs button.active{color:var(--pine);border-bottom-color:var(--pine);font-weight:700}
-  .mob-hide{display:none}
+/* ---------- read-aloud bar ---------- */
+.audiobar{
+  display:flex;align-items:center;gap:12px;
+  padding:0 16px;height:48px;
+  background:var(--page);border-bottom:1px solid var(--rule);
 }
-@media (min-width:861px){
-  .pane{height:100%}
+.audiobar .alabel{
+  font-family:var(--sans);font-size:11px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--faded);white-space:nowrap;
+}
+#voiceSel{
+  font-family:var(--sans);font-size:13px;padding:6px 8px;
+  border:1px solid var(--rule);border-radius:6px;background:#fff;
+  color:var(--ink);max-width:230px;min-width:120px;
+}
+.abtns{display:flex;gap:8px;margin-left:auto}
+.abtn{
+  font-size:13px;padding:7px 14px;border-radius:6px;
+  border:1.5px solid var(--pine);background:transparent;color:var(--pine);
+  font-weight:600;white-space:nowrap;
+}
+.abtn.primary{background:var(--pine);color:#F3EFE2}
+.abtn:disabled{opacity:.4;cursor:not-allowed}
+.abtn:not(:disabled):hover{filter:brightness(1.08)}
+.ttsnote{font-family:var(--sans);font-size:12px;color:var(--faded)}
+.reading{background:rgba(143,110,31,.16);border-radius:4px}
+.qcard.reading{border-color:var(--brass);box-shadow:0 0 0 2px rgba(143,110,31,.25)}
+
+/* responsive: phones stack the two panes vertically — same page, both
+   independently scrollable, no tab switching (SHSAT computer-test style) */
+@media (max-width:700px){
+  .reader{grid-template-columns:1fr;grid-template-rows:minmax(0,44%) minmax(0,56%)}
+  .pane-poem{border-right:none;border-bottom:2px solid var(--rule);padding:20px 16px 30px}
+  .pane-q{padding:18px 14px 60px}
+  .poem-head h2{font-size:22px}
+  .audiobar{gap:8px;padding:0 10px}
+  .audiobar .alabel{display:none}
+  #voiceSel{flex:1;max-width:160px}
+  .abtns{margin-left:auto}
+  .abtn{padding:7px 10px}
+  .abtn .btxt{display:none}
+  .ttsnote{display:none}
 }
 @media (prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important}
@@ -292,10 +314,16 @@ button{font-family:var(--sans);cursor:pointer}
   <div class="progress" id="topProgress"></div>
 </header>
 
-<nav class="mtabs hidden" id="mtabs">
-  <button id="tabPoem" class="active">Poem</button>
-  <button id="tabQ">Questions</button>
-</nav>
+<div class="audiobar hidden" id="audiobar">
+  <label class="alabel" for="voiceSel">Voice</label>
+  <select id="voiceSel" aria-label="American English voice"></select>
+  <span class="ttsnote" id="ttsNote"></span>
+  <div class="abtns">
+    <button class="abtn primary" id="btnPlay" title="Read aloud">&#9654;<span class="btxt"> Read Aloud</span></button>
+    <button class="abtn" id="btnPause" disabled title="Pause">&#10074;&#10074;<span class="btxt"> Pause</span></button>
+    <button class="abtn" id="btnStop" disabled title="Stop">&#9632;<span class="btxt"> Stop</span></button>
+  </div>
+</div>
 
 <main id="viewTOC" class="cover"></main>
 
@@ -364,8 +392,8 @@ function openPassage(n){
   document.getElementById("viewTOC").classList.add("hidden");
   document.getElementById("viewReader").classList.remove("hidden");
   document.getElementById("btnBack").classList.remove("hidden");
-  document.getElementById("mtabs").classList.remove("hidden");
-  setTab("poem");
+  document.getElementById("audiobar").classList.remove("hidden");
+  stopSpeech();
   updateTop();
   document.getElementById("paneP").scrollTop = 0;
   document.getElementById("paneQ").scrollTop = 0;
@@ -394,7 +422,7 @@ function renderPoem(){
     var text = stanzaBreak ? raw.slice(1) : raw;
     lineNo++;
     var showNum = isProse ? true : (lineNo % 5 === 0);
-    html += '<div class="pline' + ((stanzaBreak && !isProse) ? ' stanza-break' : '') + '">'
+    html += '<div class="pline' + ((stanzaBreak && !isProse) ? ' stanza-break' : '') + '" id="pl' + lineNo + '">'
       + '<span class="ln">' + (showNum ? lineNo : "") + '</span>'
       + '<span class="txt">' + esc(text) + '</span></div>';
   });
@@ -483,6 +511,7 @@ function renderQuestions(){
   } else {
     var r = document.getElementById("btnRetry");
     if (r) r.addEventListener("click", function(){
+      stopSpeech();
       delete state.scores[p.n];
       state.answers[p.n] = {};
       state.graded[p.n] = false;
@@ -500,6 +529,7 @@ function renderQuestions(){
 }
 
 function grade(){
+  stopSpeech();
   var p = getPassage(state.current);
   var ans = state.answers[p.n];
   var sc = 0;
@@ -509,7 +539,6 @@ function grade(){
   renderQuestions();
   updateTop();
   document.getElementById("paneQ").scrollTop = 0;
-  setTab("q");
 }
 
 function updateTop(){
@@ -529,35 +558,203 @@ function goHome(){
   state.current = null;
   document.getElementById("viewReader").classList.add("hidden");
   document.getElementById("btnBack").classList.add("hidden");
-  document.getElementById("mtabs").classList.add("hidden");
+  document.getElementById("audiobar").classList.add("hidden");
+  stopSpeech();
   document.getElementById("viewTOC").classList.remove("hidden");
   renderTOC(); updateTop();
   window.scrollTo(0,0);
 }
 
-/* mobile tabs */
-function setTab(which){
-  var isNarrow = (typeof window.matchMedia === "function") ? window.matchMedia("(max-width:860px)").matches : false;
-  var pp = document.getElementById("paneP");
-  var pq = document.getElementById("paneQ");
-  var tp = document.getElementById("tabPoem");
-  var tq = document.getElementById("tabQ");
-  if (!isNarrow){
-    pp.classList.remove("mob-hide"); pq.classList.remove("mob-hide");
-    return;
+document.getElementById("btnBack").addEventListener("click", goHome);
+
+/* ================= read-aloud (Web Speech API) ================= */
+var speech = { playing:false, paused:false, queue:[], idx:0, token:0 };
+
+function ttsSupported(){
+  return ("speechSynthesis" in window) && ("SpeechSynthesisUtterance" in window);
+}
+
+function populateVoices(){
+  if (!ttsSupported()) return;
+  var sel = document.getElementById("voiceSel");
+  var prev = sel.value;
+  var voices = window.speechSynthesis.getVoices() || [];
+  var us = voices.filter(function(v){
+    return v.lang && v.lang.replace("_","-").toLowerCase().indexOf("en-us") === 0;
+  });
+  if (!us.length){
+    us = voices.filter(function(v){ return v.lang && v.lang.toLowerCase().indexOf("en") === 0; });
   }
-  if (which === "q"){
-    pp.classList.add("mob-hide"); pq.classList.remove("mob-hide");
-    tq.classList.add("active"); tp.classList.remove("active");
-  } else {
-    pq.classList.add("mob-hide"); pp.classList.remove("mob-hide");
-    tp.classList.add("active"); tq.classList.remove("active");
+  sel.innerHTML = "";
+  us.forEach(function(v){
+    var o = document.createElement("option");
+    o.value = v.name;
+    o.textContent = v.name + (v.localService ? "" : " (online)");
+    sel.appendChild(o);
+  });
+  if (prev) sel.value = prev;
+  if (!sel.value && us.length){
+    var pref = us.find(function(v){ return /Google US English|Samantha|Aria|Zira|Allison|Ava/i.test(v.name); });
+    sel.value = (pref || us[0]).name;
   }
 }
-document.getElementById("tabPoem").addEventListener("click", function(){ setTab("poem"); });
-document.getElementById("tabQ").addEventListener("click", function(){ setTab("q"); });
-document.getElementById("btnBack").addEventListener("click", goHome);
-window.addEventListener("resize", function(){ if (state.current !== null) setTab(document.getElementById("tabQ").classList.contains("active") ? "q" : "poem"); });
+
+function pickVoice(){
+  if (!ttsSupported()) return null;
+  var name = document.getElementById("voiceSel").value;
+  var voices = window.speechSynthesis.getVoices() || [];
+  for (var i = 0; i < voices.length; i++){
+    if (voices[i].name === name) return voices[i];
+  }
+  return null;
+}
+
+function plainText(html){
+  var d = document.createElement("div");
+  d.innerHTML = html;
+  return (d.textContent || "").replace(/\s+/g, " ").trim();
+}
+
+function buildSpeechQueue(){
+  var p = getPassage(state.current);
+  var q = [];
+  q.push({ t: p.title + ". " + p.byline + "." });
+  var lineNo = 0;
+  p.lines.forEach(function(raw){
+    lineNo++;
+    var text = raw.charAt(0) === "|" ? raw.slice(1) : raw;
+    q.push({ t: text, el: "pl" + lineNo });
+  });
+  if (p.notes && p.notes.length){
+    p.notes.forEach(function(n){ q.push({ t: "Note. " + plainText(n) }); });
+  }
+  p.questions.forEach(function(qq, qi){
+    var L = letters(qi);
+    q.push({ t: "Question " + (qi + 1) + ". " + plainText(qq.q), el: "qc" + qi });
+    if (qq.quote) q.push({ t: plainText(qq.quote), el: "qc" + qi });
+    qq.opts.forEach(function(op, oi){
+      q.push({ t: "Option " + L[oi] + ". " + plainText(op), el: "qc" + qi });
+    });
+  });
+  return q;
+}
+
+function clearReadingHighlight(){
+  document.querySelectorAll(".reading").forEach(function(e){ e.classList.remove("reading"); });
+}
+
+function speakNext(tok){
+  if (tok !== speech.token || !speech.playing) return;
+  if (speech.idx >= speech.queue.length){ stopSpeech(); return; }
+  var item = speech.queue[speech.idx];
+  var u = new SpeechSynthesisUtterance(item.t);
+  var v = pickVoice();
+  if (v) u.voice = v;
+  u.lang = (v && v.lang) || "en-US";
+  u.rate = 1;
+  u.onstart = function(){
+    if (tok !== speech.token) return;
+    clearReadingHighlight();
+    if (item.el){
+      var el = document.getElementById(item.el);
+      if (el){
+        el.classList.add("reading");
+        try { el.scrollIntoView({ block:"nearest", behavior:"smooth" }); } catch(e){}
+      }
+    }
+  };
+  u.onend = function(){
+    if (tok !== speech.token) return;
+    speech.idx++;
+    speakNext(tok);
+  };
+  u.onerror = function(){
+    if (tok !== speech.token) return;
+    speech.idx++;
+    speakNext(tok);
+  };
+  window.speechSynthesis.speak(u);
+}
+
+function playSpeech(){
+  if (!ttsSupported() || state.current === null) return;
+  if (speech.playing && speech.paused){
+    window.speechSynthesis.resume();
+    speech.paused = false;
+    updateAudioUI();
+    return;
+  }
+  if (speech.playing) return;
+  try { window.speechSynthesis.cancel(); } catch(e){}
+  speech.token++;
+  speech.queue = buildSpeechQueue();
+  speech.idx = 0;
+  speech.playing = true;
+  speech.paused = false;
+  updateAudioUI();
+  speakNext(speech.token);
+}
+
+function pauseSpeech(){
+  if (!ttsSupported() || !speech.playing) return;
+  if (!speech.paused){
+    window.speechSynthesis.pause();
+    speech.paused = true;
+  } else {
+    window.speechSynthesis.resume();
+    speech.paused = false;
+  }
+  updateAudioUI();
+}
+
+function stopSpeech(){
+  if (!ttsSupported()){ updateAudioUI(); return; }
+  speech.token++;
+  speech.playing = false;
+  speech.paused = false;
+  speech.queue = [];
+  speech.idx = 0;
+  try { window.speechSynthesis.cancel(); } catch(e){}
+  clearReadingHighlight();
+  updateAudioUI();
+}
+
+function updateAudioUI(){
+  var bp = document.getElementById("btnPlay");
+  var bpa = document.getElementById("btnPause");
+  var bs = document.getElementById("btnStop");
+  if (!bp) return;
+  if (!ttsSupported()){
+    bp.disabled = true; bpa.disabled = true; bs.disabled = true;
+    document.getElementById("voiceSel").disabled = true;
+    document.getElementById("ttsNote").textContent = "Read-aloud is not supported in this browser.";
+    return;
+  }
+  if (!speech.playing){
+    bp.disabled = false; bp.innerHTML = "&#9654;<span class=\"btxt\"> Read Aloud</span>";
+    bpa.disabled = true; bpa.innerHTML = "&#10074;&#10074;<span class=\"btxt\"> Pause</span>";
+    bs.disabled = true;
+  } else if (speech.paused){
+    bp.disabled = true; bp.innerHTML = "&#9654;<span class=\"btxt\"> Read Aloud</span>";
+    bpa.disabled = false; bpa.innerHTML = "&#9654;<span class=\"btxt\"> Resume</span>";
+    bs.disabled = false;
+  } else {
+    bp.disabled = true; bp.innerHTML = "&#9654;<span class=\"btxt\"> Reading&hellip;</span>";
+    bpa.disabled = false; bpa.innerHTML = "&#10074;&#10074;<span class=\"btxt\"> Pause</span>";
+    bs.disabled = false;
+  }
+}
+
+if (ttsSupported()){
+  populateVoices();
+  if (typeof window.speechSynthesis.onvoiceschanged !== "undefined"){
+    window.speechSynthesis.onvoiceschanged = populateVoices;
+  }
+}
+document.getElementById("btnPlay").addEventListener("click", playSpeech);
+document.getElementById("btnPause").addEventListener("click", pauseSpeech);
+document.getElementById("btnStop").addEventListener("click", stopSpeech);
+updateAudioUI();
 </script>
 <script>
 var PASSAGES = [
