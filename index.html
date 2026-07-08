@@ -1,0 +1,2093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHSAT Fiction Reading · AEexam</title>
+<style>
+:root{
+  --paper:#F5F0E2;
+  --page:#FDFBF3;
+  --ink:#26231C;
+  --faded:#6E675A;
+  --pine:#1E5A4E;
+  --pine-soft:#E4EDE7;
+  --madder:#A63A2B;
+  --madder-soft:#F6E7E1;
+  --brass:#8F6E1F;
+  --rule:#D9D0BA;
+  --serif:Georgia,'Times New Roman',Times,serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--serif);
+  font-size:17px;
+  line-height:1.55;
+}
+button{font-family:var(--sans);cursor:pointer}
+.hidden{display:none!important}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky;top:0;z-index:20;
+  background:var(--pine);color:#F3EFE2;
+  display:flex;align-items:center;gap:12px;
+  padding:10px 16px;
+  box-shadow:0 1px 0 rgba(0,0,0,.18);
+}
+.topbar .brand{
+  font-family:var(--serif);font-size:17px;letter-spacing:.4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.topbar .brand b{font-weight:700}
+.backbtn{
+  background:rgba(255,255,255,.12);color:#F3EFE2;
+  border:1px solid rgba(255,255,255,.35);border-radius:6px;
+  padding:6px 12px;font-size:13px;letter-spacing:.3px;
+}
+.backbtn:hover{background:rgba(255,255,255,.22)}
+.topbar .progress{
+  margin-left:auto;font-family:var(--sans);font-size:12px;
+  letter-spacing:.6px;opacity:.85;white-space:nowrap;
+}
+
+/* ---------- table of contents ---------- */
+.cover{max-width:760px;margin:0 auto;padding:40px 20px 80px}
+.cover-head{
+  text-align:center;border-bottom:3px double var(--rule);
+  padding-bottom:26px;margin-bottom:8px;
+}
+.cover-head .eyebrow{
+  font-family:var(--sans);font-size:11px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--brass);margin-bottom:14px;
+}
+.cover-head h1{
+  font-size:clamp(30px,6vw,44px);font-weight:400;letter-spacing:.5px;
+  line-height:1.15;
+}
+.cover-head h1 em{font-style:italic}
+.cover-head .sub{
+  margin-top:12px;color:var(--faded);font-size:15px;font-style:italic;
+}
+.cover-meta{
+  display:flex;justify-content:center;gap:24px;
+  font-family:var(--sans);font-size:12px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--faded);
+  padding:14px 0 26px;border-bottom:1px solid var(--rule);
+  margin-bottom:26px;flex-wrap:wrap;
+}
+.toc-list{list-style:none}
+.toc-item{
+  display:flex;align-items:center;gap:16px;
+  background:var(--page);border:1px solid var(--rule);
+  border-radius:10px;padding:16px 18px;margin-bottom:12px;
+  cursor:pointer;transition:transform .12s ease, box-shadow .12s ease;
+  position:relative;overflow:hidden;
+}
+.toc-item:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(38,35,28,.10)}
+.toc-item:focus-visible{outline:3px solid var(--pine);outline-offset:2px}
+.toc-item .num{
+  font-family:var(--serif);font-size:20px;color:var(--brass);
+  min-width:44px;text-align:center;font-style:italic;
+}
+.toc-item .titles{flex:1;min-width:0}
+.toc-item .titles .t{font-size:18px;letter-spacing:.2px}
+.toc-item .titles .fl{
+  font-size:13px;color:var(--faded);font-style:italic;margin-top:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.toc-item .chip{
+  font-family:var(--sans);font-size:11px;letter-spacing:.5px;
+  border:1px solid var(--rule);border-radius:20px;padding:4px 10px;
+  color:var(--faded);white-space:nowrap;
+}
+.toc-item .chip.done{
+  background:var(--pine-soft);border-color:var(--pine);color:var(--pine);font-weight:600;
+}
+.toc-item .ribbon{
+  position:absolute;left:0;top:0;bottom:0;width:4px;background:transparent;
+}
+.toc-item.completed .ribbon{background:var(--pine)}
+.cover-foot{
+  margin-top:34px;text-align:center;font-family:var(--sans);
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--faded);
+}
+
+.toc-section{
+  font-family:var(--sans);font-size:11px;letter-spacing:2.5px;
+  text-transform:uppercase;color:var(--brass);
+  margin:30px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--rule);
+}
+.poem-body.prose{max-width:640px}
+.poem-body.prose .pline{margin-bottom:12px;align-items:flex-start}
+.poem-body.prose .txt{font-size:16px;line-height:1.7}
+.poem-body.prose .ln{transform:none;padding-top:4px}
+
+/* ---------- passage view ---------- */
+.reader{
+  display:grid;grid-template-columns:46% 54%;
+  height:calc(100vh - 49px);
+}
+.pane{overflow-y:auto;overscroll-behavior:contain}
+.pane-poem{
+  background:var(--page);
+  border-right:1px solid var(--rule);
+  padding:34px 30px 70px 26px;
+}
+.pane-q{padding:30px 26px 90px}
+
+.poem-head{margin-bottom:26px;text-align:center}
+.poem-head .eyebrow{
+  font-family:var(--sans);font-size:10px;letter-spacing:2.5px;
+  text-transform:uppercase;color:var(--brass);margin-bottom:10px;
+}
+.poem-head h2{font-size:26px;font-weight:400;letter-spacing:.3px}
+.poem-head .byline{
+  font-style:italic;color:var(--faded);font-size:15px;margin-top:6px;
+}
+.poem-body{max-width:520px;margin:0 auto}
+.pline{
+  display:flex;gap:14px;align-items:baseline;
+  padding:1px 0;
+}
+.pline .ln{
+  font-family:var(--sans);font-size:11px;color:var(--brass);
+  min-width:26px;text-align:right;flex-shrink:0;
+  transform:translateY(-1px);
+}
+.pline .txt{font-size:16.5px;line-height:1.62}
+.pline.stanza-break{margin-top:18px}
+.ppara{display:flex;gap:14px;align-items:baseline;margin-bottom:15px}
+.ppara .pn{
+  font-family:var(--sans);font-size:11px;color:var(--brass);
+  min-width:26px;text-align:right;flex-shrink:0;transform:translateY(-1px);
+}
+.ppara .txt{font-size:16px;line-height:1.68}
+.poem-notes{
+  max-width:520px;margin:30px auto 0;padding-top:14px;
+  border-top:1px solid var(--rule);
+  font-size:13.5px;color:var(--faded);
+}
+.poem-notes p{margin-bottom:4px}
+.poem-notes b{color:var(--ink)}
+
+.q-instructions{
+  font-family:var(--sans);font-size:12.5px;color:var(--faded);
+  border:1px dashed var(--rule);border-radius:8px;
+  padding:10px 14px;margin-bottom:22px;background:var(--page);
+}
+.qcard{
+  background:var(--page);border:1px solid var(--rule);border-radius:10px;
+  padding:18px 18px 14px;margin-bottom:16px;
+}
+.qcard .qnum{
+  font-family:var(--sans);font-size:11px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--brass);margin-bottom:8px;
+}
+.qcard .qtext{font-size:16.5px;margin-bottom:8px}
+.qcard .qquote{
+  border-left:3px solid var(--rule);padding:6px 12px;margin:8px 0 12px;
+  font-size:15.5px;font-weight:700;line-height:1.5;
+}
+.opt{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:9px 10px;border-radius:8px;cursor:pointer;
+  border:1px solid transparent;margin:2px 0;
+  transition:background .1s ease;
+}
+.opt:hover{background:rgba(30,90,78,.06)}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt .letter{
+  font-family:var(--serif);font-size:14px;font-weight:700;
+  width:26px;height:26px;border:1.5px solid var(--faded);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  color:var(--faded);transform:translateY(1px);
+  transition:all .12s ease;
+}
+.opt .otext{font-size:15.5px;line-height:1.5;padding-top:2px}
+.opt.selected{border-color:var(--pine);background:rgba(30,90,78,.07)}
+.opt.selected .letter{background:var(--pine);border-color:var(--pine);color:#fff}
+/* graded states — the "pencil circle" */
+.qcard.graded .opt{cursor:default}
+.qcard.graded .opt:hover{background:transparent}
+.qcard.graded .opt.selected:not(.is-correct){border-color:var(--madder);background:var(--madder-soft)}
+.qcard.graded .opt.selected:not(.is-correct) .letter{background:var(--madder);border-color:var(--madder)}
+.qcard.graded .opt.selected:not(.is-correct) .otext{text-decoration:line-through;text-decoration-color:var(--madder);text-decoration-thickness:1.5px;color:var(--faded)}
+.qcard.graded .opt.is-correct{
+  border-color:var(--pine);background:var(--pine-soft);
+}
+.qcard.graded .opt.is-correct .letter{
+  background:transparent;border:2.5px solid var(--pine);color:var(--pine);
+  border-radius:46% 54% 52% 48% / 52% 48% 55% 45%;
+}
+.verdict{
+  font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.8px;
+  margin-top:8px;
+}
+.verdict.ok{color:var(--pine)}
+.verdict.bad{color:var(--madder)}
+.explain{
+  margin-top:8px;padding:10px 12px;border-radius:8px;
+  background:rgba(143,110,31,.08);border-left:3px solid var(--brass);
+  font-size:14px;color:#4d4636;line-height:1.5;
+}
+.checkrow{margin:26px 0 10px;display:flex;flex-direction:column;gap:12px}
+.bigbtn{
+  background:var(--pine);color:#F3EFE2;border:none;border-radius:8px;
+  padding:14px 18px;font-size:15px;letter-spacing:.5px;font-weight:600;
+  width:100%;
+}
+.bigbtn:hover{filter:brightness(1.08)}
+.bigbtn:disabled{opacity:.45;cursor:not-allowed}
+.bigbtn.secondary{
+  background:transparent;color:var(--pine);border:1.5px solid var(--pine);
+}
+.scorecard{
+  background:var(--page);border:2px solid var(--pine);border-radius:12px;
+  padding:20px;text-align:center;
+}
+.scorecard .big{font-size:34px;color:var(--pine)}
+.scorecard .lbl{
+  font-family:var(--sans);font-size:11px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--faded);margin-top:4px;
+}
+.scorecard .msg{margin-top:10px;font-style:italic;color:var(--faded);font-size:14.5px}
+
+/* mobile tab toggle */
+.mtabs{display:none}
+@media (max-width:860px){
+  .reader{display:block;height:auto}
+  .pane{overflow:visible}
+  .pane-poem{border-right:none;padding:26px 18px 40px}
+  .pane-q{padding:22px 16px 80px}
+  .mtabs{
+    display:flex;position:sticky;top:49px;z-index:15;
+    background:var(--paper);border-bottom:1px solid var(--rule);
+  }
+  .mtabs button{
+    flex:1;padding:12px;background:transparent;border:none;
+    font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--faded);
+    border-bottom:3px solid transparent;
+  }
+  .mtabs button.active{color:var(--pine);border-bottom-color:var(--pine);font-weight:700}
+  .mob-hide{display:none}
+}
+@media (min-width:861px){
+  .pane{height:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <button class="backbtn hidden" id="btnBack">&#8592; Contents</button>
+  <div class="brand" id="brandTitle"><b>SHSAT Fiction Reading</b> &middot; AEexam</div>
+  <div class="progress" id="topProgress"></div>
+</header>
+
+<nav class="mtabs hidden" id="mtabs">
+  <button id="tabPoem" class="active">Poem</button>
+  <button id="tabQ">Questions</button>
+</nav>
+
+<main id="viewTOC" class="cover"></main>
+
+<main id="viewReader" class="reader hidden">
+  <section class="pane pane-poem" id="paneP"></section>
+  <section class="pane pane-q" id="paneQ"></section>
+</main>
+
+<script>
+/* ================= app state ================= */
+var state = { current: null, answers: {}, graded: {}, scores: {} };
+
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function letters(qIdx){ return (qIdx % 2 === 0) ? ["A","B","C","D"] : ["E","F","G","H"]; }
+
+/* ================= TOC ================= */
+function renderTOC(){
+  var el = document.getElementById("viewTOC");
+  var poems = [], prose = [];
+  PASSAGES.forEach(function(p){ (p.kind === "prose" ? prose : poems).push(p); });
+  var done = Object.keys(state.scores).length;
+  var romans = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII","XIII","XIV","XV"];
+  function item(p, label){
+    var sc = state.scores[p.n];
+    var chip = (sc !== undefined)
+      ? '<span class="chip done">' + sc + ' / ' + p.questions.length + '</span>'
+      : '<span class="chip">' + p.questions.length + ' questions</span>';
+    return '<li><button class="toc-item' + (sc !== undefined ? ' completed' : '') + '" data-n="' + p.n + '">'
+      + '<span class="ribbon"></span>'
+      + '<span class="num">' + label + '</span>'
+      + '<span class="titles"><span class="t">' + esc(p.title) + '</span>'
+      + '<span class="fl">&ldquo;' + esc(p.lines[0].replace(/\|/g,"").slice(0,90)) + '&rdquo;</span></span>'
+      + chip
+      + '</button></li>';
+  }
+  var html = ''
+    + '<div class="cover-head">'
+    + '  <div class="eyebrow">AEexam &middot; English Language Arts</div>'
+    + '  <h1>SHSAT Fiction Reading</h1>'
+    + '  <div class="sub">Twelve original poems and five original prose passages, with practice questions in the style of the SHSAT</div>'
+    + '</div>'
+    + '<div class="cover-meta">'
+    + '  <span>' + poems.length + ' poems</span>'
+    + '  <span>' + prose.length + ' prose passages</span>'
+    + '  <span>' + (PASSAGES.length * 10) + ' questions</span>'
+    + '  <span>' + done + ' / ' + PASSAGES.length + ' completed</span>'
+    + '</div>';
+  html += '<div class="toc-section">Part One &middot; Poetry</div><ul class="toc-list">';
+  poems.forEach(function(p, i){ html += item(p, romans[i]); });
+  html += '</ul><div class="toc-section">Part Two &middot; Prose Fiction</div><ul class="toc-list">';
+  prose.forEach(function(p, i){ html += item(p, String(i + 1)); });
+  html += '</ul><div class="cover-foot">Original passages &amp; questions &middot; AE Group</div>';
+  el.innerHTML = html;
+  el.querySelectorAll(".toc-item").forEach(function(btn){
+    btn.addEventListener("click", function(){ openPassage(parseInt(btn.getAttribute("data-n"),10)); });
+  });
+}
+
+/* ================= passage view ================= */
+function openPassage(n){
+  state.current = n;
+  if (!state.answers[n]) state.answers[n] = {};
+  state.graded[n] = state.graded[n] || false;
+  renderPoem();
+  renderQuestions();
+  document.getElementById("viewTOC").classList.add("hidden");
+  document.getElementById("viewReader").classList.remove("hidden");
+  document.getElementById("btnBack").classList.remove("hidden");
+  document.getElementById("mtabs").classList.remove("hidden");
+  setTab("poem");
+  updateTop();
+  document.getElementById("paneP").scrollTop = 0;
+  document.getElementById("paneQ").scrollTop = 0;
+  window.scrollTo(0,0);
+}
+
+function getPassage(n){
+  for (var i=0;i<PASSAGES.length;i++){ if (PASSAGES[i].n === n) return PASSAGES[i]; }
+  return null;
+}
+
+function renderPoem(){
+  var p = getPassage(state.current);
+  var isProse = (p.kind === "prose");
+  var same = PASSAGES.filter(function(x){ return ((x.kind === "prose") === isProse); });
+  var pos = 0;
+  same.forEach(function(x, i){ if (x.n === p.n) pos = i + 1; });
+  var html = '<div class="poem-head">'
+    + '<div class="eyebrow">Passage ' + pos + ' of ' + same.length + ' &middot; ' + (isProse ? 'Prose Fiction' : 'Poetry') + '</div>'
+    + '<h2>' + esc(p.title) + '</h2>'
+    + '<div class="byline">' + esc(p.byline) + '</div>'
+    + '</div><div class="poem-body' + (isProse ? ' prose' : '') + '">';
+  var lineNo = 0;
+  p.lines.forEach(function(raw){
+    var stanzaBreak = raw.charAt(0) === "|";
+    var text = stanzaBreak ? raw.slice(1) : raw;
+    lineNo++;
+    var showNum = isProse ? true : (lineNo % 5 === 0);
+    html += '<div class="pline' + ((stanzaBreak && !isProse) ? ' stanza-break' : '') + '">'
+      + '<span class="ln">' + (showNum ? lineNo : "") + '</span>'
+      + '<span class="txt">' + esc(text) + '</span></div>';
+  });
+  html += '</div>';
+  if (p.notes && p.notes.length){
+    html += '<div class="poem-notes">';
+    p.notes.forEach(function(nt){ html += '<p>' + nt + '</p>'; });
+    html += '</div>';
+  }
+  document.getElementById("paneP").innerHTML = html;
+}
+
+function renderQuestions(){
+  var p = getPassage(state.current);
+  var graded = state.graded[p.n];
+  var ans = state.answers[p.n];
+  var html = '<div class="q-instructions">Read the poem on the left, then answer questions 1&ndash;'
+    + p.questions.length + '. Select one answer per question and press <b>Check answers</b>.</div>';
+  p.questions.forEach(function(q, qi){
+    var L = letters(qi);
+    var chosen = ans[qi];
+    html += '<div class="qcard' + (graded ? ' graded' : '') + '" id="qc' + qi + '">'
+      + '<div class="qnum">Question ' + (qi+1) + '</div>'
+      + '<div class="qtext">' + q.q + '</div>';
+    if (q.quote){ html += '<div class="qquote">' + q.quote + '</div>'; }
+    q.opts.forEach(function(op, oi){
+      var cls = "opt";
+      if (chosen === oi) cls += " selected";
+      if (graded && oi === q.a) cls += " is-correct";
+      html += '<label class="' + cls + '" data-q="' + qi + '" data-o="' + oi + '">'
+        + '<input type="radio" name="q' + qi + '"' + (chosen === oi ? " checked" : "") + (graded ? " disabled" : "") + '>'
+        + '<span class="letter">' + L[oi] + '</span>'
+        + '<span class="otext">' + op + '</span></label>';
+    });
+    if (graded){
+      var ok = (chosen === q.a);
+      html += '<div class="verdict ' + (ok ? "ok" : "bad") + '">'
+        + (ok ? "&#10003; CORRECT" : (chosen === undefined ? "&#9675; NOT ANSWERED &middot; correct: " + letters(qi)[q.a] : "&#10007; INCORRECT &middot; correct: " + letters(qi)[q.a]))
+        + '</div>'
+        + '<div class="explain">' + q.ex + '</div>';
+    }
+    html += '</div>';
+  });
+  html += '<div class="checkrow" id="checkrow">';
+  if (!graded){
+    html += '<button class="bigbtn" id="btnCheck">Check answers</button>';
+  } else {
+    var sc = state.scores[p.n];
+    var pct = Math.round(100 * sc / p.questions.length);
+    var msg = pct === 100 ? "Perfect score. Ready for test day."
+      : pct >= 80 ? "Strong work. Review the explanations for the ones you missed."
+      : pct >= 60 ? "A solid base. Reread the poem, then revisit the missed questions."
+      : "Read the explanations carefully, then try the next passage with fresh eyes.";
+    html += '<div class="scorecard"><div class="big">' + sc + ' / ' + p.questions.length + '</div>'
+      + '<div class="lbl">score &middot; ' + pct + '%</div>'
+      + '<div class="msg">' + msg + '</div></div>';
+    html += '<button class="bigbtn secondary" id="btnRetry">Clear &amp; retry this passage</button>';
+    var idx = PASSAGES.findIndex(function(x){ return x.n === p.n; });
+    if (idx < PASSAGES.length - 1){
+      html += '<button class="bigbtn" id="btnNext">Next passage &rarr;</button>';
+    } else {
+      html += '<button class="bigbtn" id="btnHome">Back to contents</button>';
+    }
+  }
+  html += '</div>';
+  document.getElementById("paneQ").innerHTML = html;
+
+  if (!graded){
+    document.querySelectorAll("#paneQ .opt").forEach(function(lab){
+      lab.addEventListener("click", function(e){
+        e.preventDefault();
+        var qi = parseInt(lab.getAttribute("data-q"),10);
+        var oi = parseInt(lab.getAttribute("data-o"),10);
+        state.answers[p.n][qi] = oi;
+        renderQuestions();
+        updateTop();
+      });
+    });
+    document.getElementById("btnCheck").addEventListener("click", function(){
+      var answered = Object.keys(state.answers[p.n]).length;
+      if (answered < p.questions.length){
+        if (!window.confirm("You have answered " + answered + " of " + p.questions.length + " questions. Check anyway?")) return;
+      }
+      grade();
+    });
+  } else {
+    var r = document.getElementById("btnRetry");
+    if (r) r.addEventListener("click", function(){
+      delete state.scores[p.n];
+      state.answers[p.n] = {};
+      state.graded[p.n] = false;
+      renderQuestions(); updateTop();
+      document.getElementById("paneQ").scrollTop = 0;
+    });
+    var nx = document.getElementById("btnNext");
+    if (nx) nx.addEventListener("click", function(){
+      var idx = PASSAGES.findIndex(function(x){ return x.n === p.n; });
+      openPassage(PASSAGES[idx+1].n);
+    });
+    var hm = document.getElementById("btnHome");
+    if (hm) hm.addEventListener("click", goHome);
+  }
+}
+
+function grade(){
+  var p = getPassage(state.current);
+  var ans = state.answers[p.n];
+  var sc = 0;
+  p.questions.forEach(function(q, qi){ if (ans[qi] === q.a) sc++; });
+  state.scores[p.n] = sc;
+  state.graded[p.n] = true;
+  renderQuestions();
+  updateTop();
+  document.getElementById("paneQ").scrollTop = 0;
+  setTab("q");
+}
+
+function updateTop(){
+  var el = document.getElementById("topProgress");
+  if (state.current === null){
+    el.textContent = "";
+    return;
+  }
+  var p = getPassage(state.current);
+  var answered = Object.keys(state.answers[p.n] || {}).length;
+  el.textContent = state.graded[p.n]
+    ? "Score " + state.scores[p.n] + "/" + p.questions.length
+    : answered + "/" + p.questions.length + " answered";
+}
+
+function goHome(){
+  state.current = null;
+  document.getElementById("viewReader").classList.add("hidden");
+  document.getElementById("btnBack").classList.add("hidden");
+  document.getElementById("mtabs").classList.add("hidden");
+  document.getElementById("viewTOC").classList.remove("hidden");
+  renderTOC(); updateTop();
+  window.scrollTo(0,0);
+}
+
+/* mobile tabs */
+function setTab(which){
+  var isNarrow = (typeof window.matchMedia === "function") ? window.matchMedia("(max-width:860px)").matches : false;
+  var pp = document.getElementById("paneP");
+  var pq = document.getElementById("paneQ");
+  var tp = document.getElementById("tabPoem");
+  var tq = document.getElementById("tabQ");
+  if (!isNarrow){
+    pp.classList.remove("mob-hide"); pq.classList.remove("mob-hide");
+    return;
+  }
+  if (which === "q"){
+    pp.classList.add("mob-hide"); pq.classList.remove("mob-hide");
+    tq.classList.add("active"); tp.classList.remove("active");
+  } else {
+    pq.classList.add("mob-hide"); pp.classList.remove("mob-hide");
+    tp.classList.add("active"); tq.classList.remove("active");
+  }
+}
+document.getElementById("tabPoem").addEventListener("click", function(){ setTab("poem"); });
+document.getElementById("tabQ").addEventListener("click", function(){ setTab("q"); });
+document.getElementById("btnBack").addEventListener("click", goHome);
+window.addEventListener("resize", function(){ if (state.current !== null) setTab(document.getElementById("tabQ").classList.contains("active") ? "q" : "poem"); });
+</script>
+<script>
+var PASSAGES = [
+{
+  n:1, title:"The Old Oak's Calendar", byline:"an AE original poem",
+  lines:[
+    "A steady neighbor waits beyond my glass,",
+    "Its branches lifted in a morning wave.",
+    "It taps a greeting when the storm winds pass,",
+    "Old oak, unhurried, generous, and brave.",
+    "Each day I pull the curtain wide to see",
+    "What season's news my neighbor holds for me.",
+    "|In spring, the buds unclench like tiny fists,",
+    "And sparrows stitch new songs from limb to limb.",
+    "A green haze gathers where the frost once kissed,",
+    "And light spills gold along each waking rim.",
+    "Loose petals drift like slow confetti down",
+    "To lay a pale white carpet through the town.",
+    "|In summer, leaves crowd thick against the sun,",
+    "A cool green ceiling for the street below.",
+    "The children bring their laughter, one by one,",
+    "To rest where all the deepest shadows grow.",
+    "The old oak bends as if it means to hear",
+    "Each game, each secret, whispered at its ear.",
+    "|In autumn, every leaf becomes a coin,",
+    "Copper and gold spent freely on the lawn.",
+    "The squirrels race where trunk and branches join,",
+    "Hiding their acorn treasure for the dawn",
+    "Of colder days; the leaves let go, and fall",
+    "Like slow bright sparks along the garden wall.",
+    "|In winter, bare gray arms against gray sky,",
+    "No leaf, no bloom, no busy wings, no sound.",
+    "The oak stands still and lets the cold go by,",
+    "Its patience sunk like roots beneath the ground.",
+    "Then one small bud unlocks upon a limb,",
+    "And the whole calendar begins with him."
+  ],
+  notes:[],
+  questions:[
+    {q:"Which statement best captures the central idea of the poem?",
+     opts:["Winter is the most difficult season for living things to endure.",
+           "Nature moves through constant, repeating cycles of change.",
+           "Trees are more dependable companions than people.",
+           "Childhood games are quickly forgotten as seasons pass."],
+     a:1, ex:"Every stanza tracks the oak through one season, and the final lines return to spring — the poem's own shape is a repeating cycle."},
+    {q:"The personification in lines 1&ndash;4 suggests that the tree",
+     opts:["blocks the speaker's view of the street.",
+           "threatens the speaker's home during storms.",
+           "is a familiar, friendly presence to the speaker.",
+           "belongs to the speaker's actual neighbor."],
+     a:2, ex:"Waving, tapping a greeting, and being called a &ldquo;steady neighbor&rdquo; all cast the oak as a welcoming companion."},
+    {q:"The second stanza (lines 7&ndash;12) helps develop the theme of the poem by suggesting that",
+     opts:["spring arrives suddenly and violently.",
+           "the speaker finds renewal in spring's small details.",
+           "birds are the only reliable sign of spring.",
+           "frost permanently damages the tree each year."],
+     a:1, ex:"Buds, birdsong, green haze, and drifting petals are small observations that add up to a picture of quiet renewal."},
+    {q:"The purpose of the simile in line 7 (&ldquo;buds unclench like tiny fists&rdquo;) is to",
+     opts:["suggest the tree is angry at the passing winter.",
+           "show the buds opening slowly, as if releasing held-in energy.",
+           "compare the tree's branches to human arms.",
+           "emphasize how large the new leaves will grow."],
+     a:1, ex:"A fist unclenching opens gradually and releases tension — exactly the image of tight buds relaxing into bloom."},
+    {q:"Read lines 15&ndash;18 from the poem. The figurative language in these lines conveys",
+     quote:"The children bring their laughter, one by one, / To rest where all the deepest shadows grow. / The old oak bends as if it means to hear / Each game, each secret, whispered at its ear.",
+     opts:["the children's fear of the tree's deep shadows.",
+           "the tree's usefulness only during summer heat.",
+           "a warning that secrets should not be shared outdoors.",
+           "a feeling of closeness between the tree and the neighborhood."],
+     a:3, ex:"The oak &ldquo;bends as if it means to hear&rdquo; the children's games — an image of intimacy, not fear or mere usefulness."},
+    {q:"The metaphor in lines 19&ndash;20, which compares leaves to coins, is used to convey",
+     opts:["how quickly autumn passes each year.",
+           "the damage falling leaves cause to the lawn.",
+           "the family's habit of raking leaves for money.",
+           "autumn's colors as riches given away freely."],
+     a:3, ex:"Copper and gold &ldquo;spent freely&rdquo; present the falling leaves as generous wealth, not loss or labor."},
+    {q:"How does the word choice in lines 21&ndash;24 impact the mood of the poem?",
+     opts:["by creating a feeling of urgency and dread",
+           "by depicting energetic preparation for the coming cold",
+           "by revealing the speaker's annoyance with the squirrels",
+           "by introducing a sense of permanent loss"],
+     a:1, ex:"Racing squirrels &ldquo;hiding their acorn treasure&rdquo; suggest busy, purposeful preparation — lively rather than fearful."},
+    {q:"What do lines 25&ndash;26 suggest about winter?",
+     opts:["The tree has finally died.",
+           "Snow completely hides the tree from view.",
+           "Winter strips the scene of life and activity.",
+           "The speaker stops watching the tree in winter."],
+     a:2, ex:"Bare gray arms and the list of absences (&ldquo;no leaf, no bloom&hellip;&rdquo;) empty the scene of everything lively — but the oak endures."},
+    {q:"What is the purpose of the repeated use of &ldquo;no&rdquo; in line 26?",
+     opts:["to emphasize how much is absent in winter",
+           "to show the speaker's boredom with the view",
+           "to prove that the oak is unhealthy",
+           "to compare winter unfavorably to autumn"],
+     a:0, ex:"Each &ldquo;no&rdquo; subtracts one more sign of life, piling up the emptiness of the winter scene."},
+    {q:"What does the bud in line 29 represent?",
+     opts:["the tree's final effort before dying",
+           "a warning that frost will soon return",
+           "the speaker's fading imagination",
+           "renewal, and the promise that the cycle begins again"],
+     a:3, ex:"The single green bud &ldquo;unlocks&rdquo; the next spring — the calendar of seasons starting over."}
+  ]
+},
+{
+  n:2, title:"The River to the Mountain", byline:"an AE original poem",
+  lines:[
+    "Old mountain, silent source above my bed,",
+    "I carry what your winters chose to give:",
+    "Each thaw you send comes singing down instead",
+    "Of staying stone — through me your snows still live.",
+    "|My current is a thread you hold from far,",
+    "A silver rope of water, not of stone;",
+    "I bend around the valleys where you are,",
+    "And even bending, never run alone.",
+    "|You carve my course, a sculptor working slow,",
+    "Your shoulders part the storms that fill my springs.",
+    "Without your height, my shallows cease to flow,",
+    "And drought would still the song the canyon sings.",
+    "|Your face is painted on my morning glass,",
+    "A steady picture rippling in my stream.",
+    "Each cloud that crowns you, I watch slowly pass,",
+    "Carried on water like a moving dream.",
+    "|Your snow is a white ledger of the year;",
+    "It keeps the count of seasons in its fold,",
+    "And melting, writes the calendar down here",
+    "In currents running first warm, and then cold.",
+    "|Together we are one long conversation,",
+    "Stone speaking slowly, water answering fast;",
+    "My every mile is your continuation,",
+    "A pact of stone and current, built to last."
+  ],
+  notes:[],
+  questions:[
+    {q:"How does the phrase &ldquo;silent source above my bed&rdquo; in line 1 contribute to the development of the poem?",
+     opts:["It shows that the river resents the mountain's silence.",
+           "It suggests the mountain is asleep and unaware of the river.",
+           "It establishes the mountain as the origin on which the river depends.",
+           "It indicates that the two are distant and unconnected."],
+     a:2, ex:"&ldquo;Source&rdquo; names the mountain as the river's origin; the rest of the poem builds on this dependence."},
+    {q:"The description of the current as &ldquo;a silver rope of water, not of stone&rdquo; (line 6) primarily serves to",
+     opts:["emphasize the river's monetary value.",
+           "contrast a flexible, living connection with something rigid.",
+           "show that the river is fragile and easily broken.",
+           "describe the river's appearance at night."],
+     a:1, ex:"A rope bends yet still connects; stone cannot. The line stresses that the bond is strong but flexible."},
+    {q:"How does the poem's structure contribute to its overall meaning?",
+     opts:["The regular four-line stanzas mirror the steady, dependable relationship described.",
+           "The lack of any pattern symbolizes the chaos of flooding.",
+           "The stanzas grow steadily longer to show the river widening.",
+           "The indented lines represent the mountain's great height."],
+     a:0, ex:"Even, repeated quatrains move like a steady current — the form matches the constancy the poem describes."},
+    {q:"Read lines 9&ndash;10 from the poem. The comparison of the mountain to a sculptor suggests that",
+     quote:"You carve my course, a sculptor working slow, / Your shoulders part the storms that fill my springs.",
+     opts:["the river resists every change to its path.",
+           "the mountain destroys whatever the river builds.",
+           "the mountain shapes the river gradually and deliberately.",
+           "sculpture is more lasting than nature."],
+     a:2, ex:"A sculptor shapes material patiently and with intention — just as the mountain slowly carves the river's course."},
+    {q:"The line &ldquo;Without your height, my shallows cease to flow&rdquo; (line 11) implies that",
+     opts:["the river depends on the mountain for its very existence.",
+           "the river wishes it could rise as high as the mountain.",
+           "the mountain deliberately blocks the river's path.",
+           "the river is about to dry up completely."],
+     a:0, ex:"No mountain means no meltwater and no river — the line states the dependence directly."},
+    {q:"Referring to the snow as &ldquo;a white ledger of the year&rdquo; (line 17) serves to",
+     opts:["suggest that the snowpack keeps a record of passing time.",
+           "show that the snow can be bought and sold.",
+           "emphasize how quickly the snow disappears.",
+           "explain how mountain maps are drawn."],
+     a:0, ex:"A ledger is a record book; the snow &ldquo;keeps the count of seasons&rdquo; and &ldquo;writes the calendar&rdquo; as it melts."},
+    {q:"The words &ldquo;conversation&rdquo; (line 21) and &ldquo;answering&rdquo; (line 22) enhance the poem's meaning by",
+     opts:["showing that the mountain and river argue constantly.",
+           "suggesting an ongoing, responsive exchange between the two.",
+           "emphasizing the total silence of the natural world.",
+           "proving that rivers make sounds as they flow."],
+     a:1, ex:"The poem frames the relationship as dialogue: the slow &ldquo;speech&rdquo; of stone met by the quick &ldquo;answers&rdquo; of water."},
+    {q:"What does the phrase &ldquo;a pact of stone and current, built to last&rdquo; (line 24) suggest about the relationship?",
+     opts:["It is temporary and likely to end soon.",
+           "It is based on rivalry and competition.",
+           "It is complicated and difficult to maintain.",
+           "It is a lasting, dependable bond."],
+     a:3, ex:"A &ldquo;pact&hellip; built to last&rdquo; is a durable agreement — the poem's closing statement of permanence."},
+    {q:"How does the poem convey a sense of permanence in the relationship it depicts?",
+     opts:["by describing repeating natural cycles — thaw, seasons, melt — that continue without end",
+           "by avoiding any mention of the passage of time",
+           "by giving exact scientific measurements of the river",
+           "by predicting the mountain's eventual erosion"],
+     a:0, ex:"Yearly thaws and the snow &ldquo;calendar&rdquo; repeat endlessly, so the bond renews itself with every cycle."},
+    {q:"The overall tone of the poem can best be described as",
+     opts:["bitter and resentful.",
+           "anxious and uncertain.",
+           "grateful and devoted.",
+           "humorous and mocking."],
+     a:2, ex:"The river credits the mountain for its life and calls their bond a lasting pact — the voice is one of devotion."}
+  ]
+},
+{
+  n:3, title:"Aisle by Aisle", byline:"an AE original poem",
+  lines:[
+    "You enter with the hush of held-in wonder,",
+    "a traveler in a city built of pages.",
+    "Tall shelves rise up like cliffs on either side,",
+    "and every aisle runs farther than it looks,",
+    "a quiet map of everywhere at once,",
+    "drawn one small spine at a time.",
+    "|In one row, oceans open. You descend",
+    "past silver schools that scatter like spilled coins,",
+    "past anglerfish that carry their own lanterns,",
+    "down where the water swallows every color.",
+    "Whole trenches wait between two paper covers,",
+    "and you can dive without one drop of sea.",
+    "|Turn left, and deserts stretch across the shelf:",
+    "dunes marching slowly under patient suns,",
+    "caravans stitched along the horizon's hem,",
+    "and buried cities sleeping under sand.",
+    "Explorers left their footprints in these chapters",
+    "for you to follow, cool and safe, and lost.",
+    "|Another aisle, and dragons clear their throats.",
+    "Here castles lift their towers out of ink,",
+    "and clever foxes bargain with the moon.",
+    "The old tales wait like coals beneath gray ash —",
+    "one open page, one breath, and they catch fire,",
+    "burning with colors no lamp ever made.",
+    "|At last you reach the shelf where night begins:",
+    "charts of the stars, the patient math of orbits,",
+    "photographs of storms on distant worlds.",
+    "You hold a galaxy at arm's length, turning,",
+    "and understand the library's small secret:",
+    "the universe agreed to be checked out."
+  ],
+  notes:[],
+  questions:[
+    {q:"The phrase &ldquo;a city built of pages&rdquo; in line 2 primarily serves to",
+     opts:["describe the library's unusual architecture.",
+           "suggest the library's vastness, order, and richness.",
+           "show that the library is crowded with visitors.",
+           "indicate that the building is fragile."],
+     a:1, ex:"A city is vast, organized, and full of districts to explore — the metaphor maps those qualities onto the library."},
+    {q:"Read line 4 from the poem. This line establishes the setting by suggesting that the visitor",
+     quote:"and every aisle runs farther than it looks,",
+     opts:["is lost and increasingly frightened.",
+           "dislikes the library's long hallways.",
+           "senses that the shelves hold more than their size suggests.",
+           "is walking too slowly to see everything."],
+     a:2, ex:"An aisle that &ldquo;runs farther than it looks&rdquo; hints that each shelf opens onto whole worlds beyond its physical length."},
+    {q:"The mention of anglerfish &ldquo;that carry their own lanterns&rdquo; (line 9) most likely indicates that the visitor is",
+     opts:["encountering facts about real deep-sea creatures.",
+           "imagining creatures invented by the poet.",
+           "afraid of the dark spaces between shelves.",
+           "reading a manual about lamp-making."],
+     a:0, ex:"Anglerfish really do carry glowing lures; this row holds true natural history, presented with wonder."},
+    {q:"Which detail from the poem best illustrates the idea that books make dangerous places safe to explore?",
+     opts:["&ldquo;a quiet map of everywhere at once&rdquo; (line 5)",
+           "&ldquo;and you can dive without one drop of sea&rdquo; (line 12)",
+           "&ldquo;dunes marching slowly under patient suns&rdquo; (line 14)",
+           "&ldquo;charts of the stars, the patient math of orbits&rdquo; (line 26)"],
+     a:1, ex:"Diving into ocean trenches without getting wet captures exactly how reading removes the danger but keeps the adventure."},
+    {q:"In lines 19&ndash;24, the presence of dragons, castles, and clever foxes primarily serves to",
+     opts:["warn readers away from a haunted aisle.",
+           "describe the librarian's personal favorites.",
+           "signal the visitor's arrival at the shelves of myth and fairy tale.",
+           "prove that such creatures once existed."],
+     a:2, ex:"Dragons, castles, and talking foxes are the furniture of legend — the visitor has entered the fantasy and folklore section."},
+    {q:"Read lines 22&ndash;23 from the poem. The figurative language in these lines conveys that",
+     quote:"The old tales wait like coals beneath gray ash — / one open page, one breath, and they catch fire,",
+     opts:["the library has poor fire safety.",
+           "old stories come alive the moment they are read.",
+           "gray book covers are unpopular with readers.",
+           "old books should be replaced with new ones."],
+     a:1, ex:"Coals under ash look dead but ignite with one breath — old tales flare back to life the instant a page is opened."},
+    {q:"The word &ldquo;agreed&rdquo; in line 30 contributes to the development of the poem by",
+     opts:["describing the library's strict lending rules.",
+           "suggesting the stars can literally speak.",
+           "recording a legal contract with the reader.",
+           "presenting the universe as a willing partner in the reader's discovery."],
+     a:3, ex:"Saying the universe &ldquo;agreed&rdquo; to be checked out playfully grants it consent — knowledge offers itself to the reader."},
+    {q:"Which line best reflects the idea that past explorers invite the reader to retrace their journeys?",
+     opts:["&ldquo;Tall shelves rise up like cliffs on either side&rdquo; (line 3)",
+           "&ldquo;Here castles lift their towers out of ink&rdquo; (line 20)",
+           "&ldquo;Explorers left their footprints in these chapters&rdquo; (line 17)",
+           "&ldquo;You hold a galaxy at arm's length, turning&rdquo; (line 28)"],
+     a:2, ex:"Footprints left &ldquo;for you to follow&rdquo; turn the explorers' records into a trail the reader can walk again."},
+    {q:"The overall tone of the poem can best be described as",
+     opts:["wondering and adventurous.",
+           "gloomy and fearful.",
+           "sarcastic and dismissive.",
+           "formal and strictly scientific."],
+     a:0, ex:"From &ldquo;held-in wonder&rdquo; to a checked-out universe, the poem treats every aisle as an adventure."},
+    {q:"The final stanza (lines 25&ndash;30) contributes to the overall meaning of the poem by",
+     opts:["comparing the library to a disappointing planetarium.",
+           "showing that the visitor has finally grown bored.",
+           "arguing that astronomy matters more than other subjects.",
+           "suggesting that reading places even the universe within reach."],
+     a:3, ex:"Holding &ldquo;a galaxy at arm's length&rdquo; and checking out the universe complete the poem's claim: nothing is too vast for a book."}
+  ]
+},
+{
+  n:4, title:"The Postcard on My Desk", byline:"an AE original poem",
+  lines:[
+    "A postcard leans against my pencil cup:",
+    "one mountain, blue with distance, capped in white,",
+    "a switchback trail stitched thinly up its side,",
+    "and morning light poured over everything.",
+    "|The classroom hum dissolves. I lace my boots.",
+    "The trail begins exactly where I stand,",
+    "and gravel crunches underneath my steps",
+    "in rhythm with a heart that's glad to climb.",
+    "|The air grows thin and clean as window glass;",
+    "pines lean together, trading quiet news.",
+    "A hawk unspools a circle overhead,",
+    "writing slow cursive on the empty sky.",
+    "|Higher, the trees give up. The world turns stone,",
+    "and every switchback shows me more of it:",
+    "the valley's quilt of fields, the river's wire,",
+    "the road I came by, thin as sewing thread.",
+    "|At last, the summit — wind, and shouting light,",
+    "and distance wearing all its blues at once.",
+    "I plant my feet where photographers once stood",
+    "and feel the whole horizon fit my chest.",
+    "|The bell rings. Stone dissolves to tile and desk;",
+    "the mountain shrinks back down onto the card.",
+    "My boots are sneakers, and the wind is just",
+    "the ceiling fan, still circling like the hawk.",
+    "|But something summit-shaped stays in my chest,",
+    "patient as granite, waiting for the day",
+    "the trail begins exactly where I stand",
+    "and does not end because a school bell rings."
+  ],
+  notes:[],
+  questions:[
+    {q:"The phrase &ldquo;blue with distance&rdquo; in line 2 enhances the mood of the poem by",
+     opts:["showing that the postcard's colors have faded.",
+           "suggesting that the speaker feels sad.",
+           "conveying the mountain's remoteness and its pull on the speaker.",
+           "describing the color of the classroom walls."],
+     a:2, ex:"Distant mountains look blue because they are far away; the phrase makes the mountain feel remote and inviting at once."},
+    {q:"The line &ldquo;The classroom hum dissolves&rdquo; (line 5) develops a central idea of the poem by",
+     opts:["showing that class has been dismissed early.",
+           "marking the speaker's slip from the classroom into imagination.",
+           "describing a broken air conditioner.",
+           "proving that the speaker has fallen asleep."],
+     a:1, ex:"Reality fades and the imagined trail begins in the same instant — line 5 is the doorway into the daydream."},
+    {q:"Read lines 11&ndash;12 from the poem. The metaphor in these lines suggests that",
+     quote:"A hawk unspools a circle overhead, / writing slow cursive on the empty sky.",
+     opts:["the hawk is learning to write.",
+           "the sky is crowded with birds.",
+           "the speaker dislikes birds of prey.",
+           "the hawk's flight is graceful, slow, and deliberate."],
+     a:3, ex:"Cursive is smooth, connected, unhurried writing — the metaphor turns the hawk's circling into an elegant, deliberate motion."},
+    {q:"The details in lines 15&ndash;16 (&ldquo;the valley's quilt of fields, the river's wire, / the road I came by, thin as sewing thread&rdquo;) share what purpose?",
+     opts:["to show how height transforms the familiar world into something small and craftlike",
+           "to describe the speaker's hobby of sewing",
+           "to indicate that the land below is used only for farming",
+           "to show that the speaker has lost the trail"],
+     a:0, ex:"Quilt, wire, thread — from the heights, huge features shrink into handcraft-sized objects, emphasizing the climb's new perspective."},
+    {q:"What does line 20 (&ldquo;and feel the whole horizon fit my chest&rdquo;) imply about the speaker?",
+     opts:["The speaker has trouble breathing at high altitude.",
+           "The imagined summit fills the speaker with expansiveness and achievement.",
+           "The speaker feels crowded and trapped.",
+           "The speaker regrets making the climb."],
+     a:1, ex:"Holding the entire horizon inside one's chest is an image of feeling enlarged — the emotional payoff of reaching the top."},
+    {q:"The bell in line 21 functions in the poem as",
+     opts:["the start of the speaker's real journey.",
+           "a celebration of the speaker's imaginary climb.",
+           "an abrupt summons back from imagination to reality.",
+           "a warning of danger on the mountain."],
+     a:2, ex:"In one line, stone becomes tile and desk — the bell snaps the daydream shut and restores the classroom."},
+    {q:"In lines 23&ndash;24, comparing the ceiling fan to the hawk serves to",
+     opts:["show how ordinary objects still echo the daydream after it ends.",
+           "prove that the hawk was never real.",
+           "criticize the classroom's poor ventilation.",
+           "suggest that the speaker feels dizzy."],
+     a:0, ex:"The fan &ldquo;still circling like the hawk&rdquo; shows the daydream lingering — the plain world now carries traces of the imagined one."},
+    {q:"The phrase &ldquo;something summit-shaped stays in my chest&rdquo; (line 25) suggests that",
+     opts:["the speaker feels ill after daydreaming.",
+           "the postcard belongs to the speaker's teacher.",
+           "the mountain has already been forgotten.",
+           "the daydream leaves a lasting ambition inside the speaker."],
+     a:3, ex:"Something &ldquo;patient as granite&rdquo; remains — the imagined climb has hardened into a real goal, waiting for its day."},
+    {q:"The near-repetition of line 6 in line 27 (&ldquo;the trail begins exactly where I stand&rdquo;) emphasizes",
+     opts:["that the speaker is walking in circles.",
+           "the speaker's hope of one day turning imagination into a real journey.",
+           "the mountain's exact location on a map.",
+           "that the poem lacks a clear structure."],
+     a:1, ex:"The first time, the trail begins in imagination; the second time, the speaker hopes it will begin in real life — same words, new promise."},
+    {q:"The overall structure of the poem — reality, daydream, and return — conveys that",
+     opts:["school prevents all adventure.",
+           "daydreaming is a waste of class time.",
+           "imagination can transform everyday life without erasing it.",
+           "postcards are unreliable sources of information."],
+     a:2, ex:"The speaker returns to the same desk, but changed — carrying a &ldquo;summit-shaped&rdquo; ambition the daydream left behind."}
+  ]
+},
+{
+  n:5, title:"one drop, magnified", byline:"an AE original poem",
+  lines:[
+    "beneath this lens, a puddle is a planet,",
+    "one bead of water wide as any world;",
+    "the eye leans down, the glass leans back, and suddenly",
+    "the invisible agrees to introduce itself.",
+    "|commuters everywhere: the slipper-shaped ones",
+    "hurry along on hallways made of water,",
+    "rowing themselves with thousands of small oars,",
+    "late, it appears, for something very tiny.",
+    "|a rotifer spins its crown like a carousel¹,",
+    "drawing its dinner down a spiral stair;",
+    "green threads of algae sway, a sunken meadow,",
+    "farming their light on windowsills of water.",
+    "|some drift like lazy parade balloons; others",
+    "dart quick as punctuation, commas swimming;",
+    "each one a whole life, fitted with its errands,",
+    "too small to see, too busy to be simple.",
+    "|nothing in here has ever heard of us.",
+    "our cities, wars, our birthdays and our homework",
+    "mean nothing to a creature one cell wide",
+    "who nonetheless gets hungry, travels, hides.",
+    "|and still we lean above them like a weather,",
+    "our breath a hurricane across their sky.",
+    "the lens is a window neither side requested,",
+    "and only one side knows it is a window.",
+    "|look long enough, and smallness stops meaning simple:",
+    "a drop can hold a crowd, a farm, a fair."
+  ],
+  notes:["<b>&sup1; carousel:</b> a rotating platform ride; a merry-go-round"],
+  questions:[
+    {q:"The phrase &ldquo;a puddle is a planet&rdquo; (line 1) supports a main idea of the poem by",
+     opts:["comparing Earth unfavorably to other planets.",
+           "presenting the microscopic world as vast and complete in itself.",
+           "measuring the puddle's actual size.",
+           "warning that puddles can be dangerous."],
+     a:1, ex:"Calling one bead of water &ldquo;wide as any world&rdquo; announces the poem's claim: an entire universe fits inside a drop."},
+    {q:"Read lines 5&ndash;8 from the poem. The figurative language in these lines advances a central theme by",
+     quote:"commuters everywhere: the slipper-shaped ones / hurry along on hallways made of water, / rowing themselves with thousands of small oars, / late, it appears, for something very tiny.",
+     opts:["giving the microorganisms familiar, human-like routines.",
+           "proving that microorganisms ride trains to work.",
+           "exaggerating the dangers of the microscopic world.",
+           "mocking people who commute to work."],
+     a:0, ex:"Commuters, hallways, oars, running late — human routines are mapped onto the organisms, making the alien world feel familiar."},
+    {q:"The use of the word &ldquo;carousel&rdquo; in line 9 contributes to the development of the poem by",
+     opts:["indicating that the rotifer is actually a machine.",
+           "showing that fairs are sometimes held underwater.",
+           "suggesting the rotifer's motion is circular, rhythmic, and almost playful.",
+           "emphasizing the rotifer's enormous size."],
+     a:2, ex:"A carousel turns in a steady, cheerful circle — the comparison makes the rotifer's spinning crown feel rhythmic and delightful."},
+    {q:"The comparison of algae to &ldquo;a sunken meadow&rdquo; (line 11) primarily serves to",
+     opts:["show that the algae are dying.",
+           "present the algae as a living, growing landscape.",
+           "indicate that the water is very shallow.",
+           "describe the color of the microscope's lens."],
+     a:1, ex:"A meadow is a whole living field; the metaphor turns swaying algae threads into farmland &ldquo;farming their light.&rdquo;"},
+    {q:"The phrase &ldquo;dart quick as punctuation, commas swimming&rdquo; (line 14) enhances the atmosphere of the poem by",
+     opts:["capturing the tiny, darting movements of the organisms in a writer's terms.",
+           "suggesting that the organisms can read and write.",
+           "showing that grammar is difficult to master.",
+           "slowing down the rhythm of the poem."],
+     a:0, ex:"Commas are tiny, curved, and quick to the eye — a witty visual match for small organisms flicking through water."},
+    {q:"Which line from the poem best emphasizes that the microscopic world is indifferent to human life?",
+     opts:["&ldquo;the invisible agrees to introduce itself&rdquo; (line 4)",
+           "&ldquo;green threads of algae sway, a sunken meadow&rdquo; (line 11)",
+           "&ldquo;a drop can hold a crowd, a farm, a fair&rdquo; (line 26)",
+           "&ldquo;nothing in here has ever heard of us&rdquo; (line 17)"],
+     a:3, ex:"Line 17 states the indifference outright: human concerns simply do not exist at that scale."},
+    {q:"In lines 21&ndash;22, describing human presence as &ldquo;a weather&rdquo; and human breath as &ldquo;a hurricane&rdquo; suggests",
+     opts:["that a storm is approaching the laboratory.",
+           "how enormous and unnoticed human influence is at that scale.",
+           "that breathing spreads disease.",
+           "that weather can be controlled by people."],
+     a:1, ex:"To creatures one cell wide, we are not people but forces of nature — vast, powerful, and impersonal."},
+    {q:"Read lines 23&ndash;24 from the poem. These lines contribute to the poem's meaning by",
+     quote:"the lens is a window neither side requested, / and only one side knows it is a window.",
+     opts:["describing a cracked and broken microscope.",
+           "suggesting that windows should be kept closed in labs.",
+           "highlighting the one-sided nature of human observation.",
+           "proving the organisms are secretly watching us."],
+     a:2, ex:"Only the human side knows the window exists — observation flows one way, a quiet comment on who watches whom."},
+    {q:"The poet's use of lowercase letters throughout the poem most likely serves to",
+     opts:["indicate that the poem was never finished.",
+           "make the poem more difficult to read.",
+           "display the speaker's poor grammar.",
+           "echo the smallness and quietness of the subject."],
+     a:3, ex:"Even the letters shrink — the typography itself imitates the miniature world the poem describes."},
+    {q:"The final line contributes to the overall meaning of the poem by",
+     opts:["insisting that smallness can contain richness and complexity.",
+           "inviting the reader to visit a county fair.",
+           "summarizing the technical rules of microscopy.",
+           "warning readers not to look too long."],
+     a:0, ex:"&ldquo;A crowd, a farm, a fair&rdquo; gathers the poem's images into one closing claim: small never means simple."}
+  ]
+},
+{
+  n:6, title:"The Giant in Gallery Nine", byline:"an AE original poem",
+  lines:[
+    "In Gallery Nine, beneath the skylight's stare,",
+    "A tower of bone rises above the crowd,",
+    "Rebuilt rib by rib with a puzzle-maker's care,",
+    "Its shadow long, its ancient head unbowed.",
+    "Children circle, whispering, ring on ring.",
+    "Unmoving, it remembers everything.",
+    "|Once it walked where no road thought to go,",
+    "Shaking the fern-lit floor with every stride,",
+    "A landlord of the marshes, vast and slow,",
+    "With storm-cloud lungs and rivers at its side.",
+    "It ruled an age that heard no human thing.",
+    "Unmoving, it remembers everything.",
+    "|Then ash, then silence, then the patient press",
+    "Of strata¹ stacking centuries like mail,",
+    "A vault of mud to guard its last address,",
+    "Its bones turned mineral, its thunder pale.",
+    "The deep earth kept it like a hidden king.",
+    "Unmoving, it remembers everything.",
+    "|Then came the brushes, smaller than its teeth,",
+    "The careful hands, the mapped and measured square,",
+    "Lifting the ages gently from beneath,",
+    "Unwrapping time with patience and with care.",
+    "It rose from earth as from a second spring.",
+    "Unmoving, it remembers everything.",
+    "|Now sneakers squeak where marshes used to steam,",
+    "And cameras flash upon the fossil crown.",
+    "It bridges what we know and what we dream,",
+    "An ambassador the ages handed down.",
+    "The past still speaks, if we will hear it sing:",
+    "Unmoving, it remembers everything."
+  ],
+  notes:["<b>&sup1; strata:</b> layers of rock or sediment built up over long stretches of time"],
+  questions:[
+    {q:"The phrase &ldquo;a puzzle-maker's care&rdquo; in line 3 suggests that",
+     opts:["the bones no longer fit together properly.",
+           "the museum's gift shop sells puzzles.",
+           "the skeleton's reconstruction was meticulous and patient.",
+           "the skeleton is designed as a children's toy."],
+     a:2, ex:"Assembling a puzzle demands patience and precision — piecing a skeleton together &ldquo;rib by rib&rdquo; required the same care."},
+    {q:"The refrain &ldquo;Unmoving, it remembers everything&rdquo; primarily serves to",
+     opts:["suggest the skeleton might move when the museum closes.",
+           "contrast the skeleton's stillness with the deep history it carries.",
+           "show that the speaker finds the exhibit boring.",
+           "indicate that visitors must remain silent."],
+     a:1, ex:"Each stanza ends on the same paradox: a motionless object holding an immense, living past."},
+    {q:"Lines 7&ndash;12 contribute to the poem by",
+     opts:["imagining the creature's living power in its ancient world.",
+           "describing how the museum was constructed.",
+           "explaining the science of how fossils form.",
+           "listing the foods the creature once ate."],
+     a:0, ex:"The second stanza rewinds time: the creature strides through marshes as a &ldquo;landlord,&rdquo; vast and alive."},
+    {q:"The phrase &ldquo;stacking centuries like mail&rdquo; (line 14) conveys",
+     opts:["that letters were buried with the creature.",
+           "the speed of geological change.",
+           "the weight of the museum building.",
+           "the slow, layer-by-layer accumulation of time."],
+     a:3, ex:"Like envelopes piling up one by one, the strata accumulate century after century over the buried bones."},
+    {q:"The description &ldquo;The deep earth kept it like a hidden king&rdquo; (line 17) suggests that",
+     opts:["the fossil was preserved as something precious.",
+           "the creature once ruled underground.",
+           "kings are traditionally buried in museums.",
+           "the earth stole the fossil from scientists."],
+     a:0, ex:"A hidden king is guarded treasure — the earth becomes a vault protecting something of royal value."},
+    {q:"In stanza 4 (lines 19&ndash;24), the details of brushes, mapped squares, and careful hands portray the excavation as",
+     opts:["a violent and hasty removal.",
+           "an impossible, unfinished task.",
+           "a meticulous, respectful process.",
+           "a competition among rival scientists."],
+     a:2, ex:"Brushes &ldquo;smaller than its teeth&rdquo; and gentle unwrapping present the dig as slow, exact, and reverent."},
+    {q:"The phrase &ldquo;as from a second spring&rdquo; (line 23) most nearly suggests that",
+     opts:["the dig took place during springtime.",
+           "the fossil's excavation is like a rebirth.",
+           "underground water was found at the site.",
+           "the skeleton was damaged during lifting."],
+     a:1, ex:"Spring is the season of things rising into new life — the fossil emerging from the ground echoes that renewal."},
+    {q:"The line &ldquo;Now sneakers squeak where marshes used to steam&rdquo; (line 25) contributes to the poem's contrast between",
+     opts:["children and scientists.",
+           "the ordinary present and the primeval past.",
+           "loud sounds and total silence.",
+           "indoor exhibits and outdoor parks."],
+     a:1, ex:"One line holds both worlds: everyday sneakers on museum floors, ancient marshes steaming in deep time."},
+    {q:"Calling the skeleton &ldquo;An ambassador the ages handed down&rdquo; (line 28) suggests that the fossil",
+     opts:["once worked for an ancient government.",
+           "was a diplomatic gift between museums.",
+           "should be returned to the earth it came from.",
+           "represents and speaks for a vanished world."],
+     a:3, ex:"An ambassador represents a distant nation; the fossil represents a vanished era to the people of the present."},
+    {q:"The overall tone of the poem can best be described as",
+     opts:["frightened and anxious.",
+           "mocking and playful.",
+           "detached and clinical.",
+           "awed and reverent."],
+     a:3, ex:"From the skylight's stare to &ldquo;the past still speaks,&rdquo; the poem treats the fossil with wonder and deep respect."}
+  ]
+},
+{
+  n:7, title:"The Album on the Shelf", byline:"an AE original poem",
+  lines:[
+    "Some winter evening, decades down the road,",
+    "When frost has drawn its curtains on the glass,",
+    "Take down this album from its shelf, and slowly",
+    "Let every summer of your life re-pass:",
+    "|The friends who orbited your brightest seasons,",
+    "Drawn to the easy laughter you could lend;",
+    "But mark the one who stayed through colder reasons,",
+    "Who loved the quiet person, not the trend —",
+    "|Who saw the doubt behind your steady smile",
+    "And chose to stay when staying cost the most.",
+    "Then close the album, sit with it awhile,",
+    "And raise your teacup to that faithful ghost."
+  ],
+  notes:[],
+  questions:[
+    {q:"The instruction to &ldquo;take down this album&rdquo; (line 3) most likely represents",
+     opts:["revisiting one's memories late in life.",
+           "dusting a neglected shelf.",
+           "giving the album away to family.",
+           "sorting photographs by date."],
+     a:0, ex:"The album stands for the past itself; taking it down and letting summers &ldquo;re-pass&rdquo; is the act of remembering."},
+    {q:"How do the words &ldquo;you&rdquo; and &ldquo;your&rdquo; contribute to the central idea of the poem?",
+     opts:["They identify a specific historical figure.",
+           "They blame the reader for lost friendships.",
+           "They address the reader directly, making the reflection feel personal and universal.",
+           "They offer the reader relationship advice."],
+     a:2, ex:"Speaking straight to &ldquo;you&rdquo; lets any reader step into the poem — the imagined future could belong to anyone."},
+    {q:"Read line 2 from the poem. This image contributes to the poem by",
+     quote:"When frost has drawn its curtains on the glass,",
+     opts:["showing that the house is cold and poorly built.",
+           "establishing a wintry, late-in-life setting that mirrors old age.",
+           "describing newly installed curtains.",
+           "indicating that the album has frozen shut."],
+     a:1, ex:"Winter and frost traditionally stand for life's later years — the setting mirrors the poem's aged, reflective moment."},
+    {q:"The phrase &ldquo;friends who orbited your brightest seasons&rdquo; (line 5) contributes to the poem by",
+     opts:["suggesting many friends were drawn mainly to the person's good times.",
+           "showing that the friends studied astronomy together.",
+           "proving the person had no friends in youth.",
+           "emphasizing how quickly the seasons change."],
+     a:0, ex:"To orbit is to circle around brightness — these friends gathered during the shining times, implying they drifted when the light dimmed."},
+    {q:"Lines 7&ndash;8 develop a central idea of the poem by",
+     opts:["proving that following trends is important.",
+           "showing that cold weather ends most friendships.",
+           "describing the loyal friend's physical appearance.",
+           "distinguishing one loyal friend from the fair-weather companions."],
+     a:3, ex:"&ldquo;But mark the one who stayed&rdquo; turns the poem from the many to the single friend who loved the true person."},
+    {q:"The phrase &ldquo;when staying cost the most&rdquo; (line 10) implies that",
+     opts:["the loyal friend paid for the photo album.",
+           "the loyal friend remained through the person's hardest times.",
+           "loyalty comes easily to true friends.",
+           "the friend eventually chose to leave."],
+     a:1, ex:"Staying &ldquo;costs&rdquo; when times are difficult — the friend's loyalty was proven precisely then."},
+    {q:"The phrase &ldquo;that faithful ghost&rdquo; (line 12) most likely refers to",
+     opts:["a spirit haunting the winter house.",
+           "the album itself, worn with age.",
+           "the memory of the loyal friend, now absent.",
+           "the speaker's own reflection in the glass."],
+     a:2, ex:"By this imagined future the friend is gone; what remains — faithful still — is the friend's memory."},
+    {q:"The gesture of raising a teacup (line 12) conveys",
+     opts:["a formal public ceremony of remembrance.",
+           "the person's thirst on a cold evening.",
+           "a lively celebration with many guests.",
+           "a quiet, private tribute."],
+     a:3, ex:"A single raised teacup by the fire is a toast for an audience of one — intimate rather than ceremonial."},
+    {q:"How does the poem's structure — an imagined future scene, a turn to memory, and a return to that scene — contribute to its meaning?",
+     opts:["It frames memory as something to be deliberately revisited and honored.",
+           "It deliberately confuses the poem's timeline.",
+           "It shows the album is badly organized.",
+           "It proves the poem has no single speaker."],
+     a:0, ex:"The poem stages remembering as a ritual: open the album, dwell on what mattered, close it, and give thanks."},
+    {q:"The overall tone of the poem can best be described as",
+     opts:["bitter and accusing.",
+           "cheerful and carefree.",
+           "tender and reflective.",
+           "urgent and frightened."],
+     a:2, ex:"The soft imperatives (&ldquo;take down,&rdquo; &ldquo;mark,&rdquo; &ldquo;raise your teacup&rdquo;) create a gentle, thoughtful mood of gratitude."}
+  ]
+},
+{
+  n:8, title:"To Quiet", byline:"an AE original poem",
+  lines:[
+    "Quiet, old friend from unhurried years,",
+    "Where have you gone in this era of alarms?",
+    "Once you would sit whole evenings at our tables,",
+    "Long as the lamplight, patient as the farms.",
+    "Now every pocket carries its own thunder,",
+    "Each hour is minced¹ to slivers, spent, and gone;",
+    "We schedule you in minutes, as if wonder",
+    "Could punch a clock and hurry to be done.",
+    "You have not vanished; you have only retreated",
+    "To attic light, to snowfall, to the deep",
+    "Of unmarked woods where no alert can find you —",
+    "The last addresses that you choose to keep.",
+    "Our crime is not that we forgot your face,",
+    "But that we never leave you any space."
+  ],
+  notes:["<b>&sup1; minced:</b> chopped into very small pieces"],
+  questions:[
+    {q:"By addressing Quiet directly, the author creates the effect of",
+     opts:["a dialogue with a family member.",
+           "an apostrophe, in which an abstract idea is addressed as if it were a person.",
+           "comic relief in a serious poem.",
+           "confusion about who is speaking."],
+     a:1, ex:"Quiet cannot literally hear or answer; speaking to it as an old friend is the device called apostrophe."},
+    {q:"The phrase &ldquo;this era of alarms&rdquo; (line 2) contributes to the central idea by",
+     opts:["describing a school fire drill.",
+           "praising the convenience of modern technology.",
+           "contrasting the noisy present with a calmer past.",
+           "showing that the speaker is often late."],
+     a:2, ex:"The poem's engine is contrast: &ldquo;unhurried years&rdquo; then, an &ldquo;era of alarms&rdquo; now."},
+    {q:"The phrase &ldquo;every pocket carries its own thunder&rdquo; (line 5) most likely refers to",
+     opts:["phones and devices that constantly demand attention.",
+           "actual storms approaching the town.",
+           "loose coins jingling in pockets.",
+           "the speaker's fear of bad weather."],
+     a:0, ex:"What lives in modern pockets and erupts with noise? The metaphor points to buzzing, ringing devices."},
+    {q:"Read lines 6&ndash;8 from the poem. These lines suggest that",
+     quote:"Each hour is minced to slivers, spent, and gone; / We schedule you in minutes, as if wonder / Could punch a clock and hurry to be done.",
+     opts:["clocks have become unreliable.",
+           "people treat time — even wonder — as something to rush and schedule.",
+           "people no longer work hard.",
+           "wonder happens only at the workplace."],
+     a:1, ex:"Mincing hours and making wonder &ldquo;punch a clock&rdquo; picture a life where even awe must fit an appointment slot."},
+    {q:"The most fitting example of the &ldquo;crime&rdquo; described in lines 13&ndash;14 would be",
+     opts:["never going camping in the woods.",
+           "sleeping too many hours each night.",
+           "filling every free moment with notifications and errands.",
+           "reading alone in an attic."],
+     a:2, ex:"The crime is leaving quiet &ldquo;no space&rdquo; — a life so packed that stillness has nowhere to sit down."},
+    {q:"Lines 9&ndash;12 imply that quiet can now be found",
+     opts:["anywhere, at any time of day.",
+           "in busy city centers.",
+           "nowhere at all anymore.",
+           "only in remote or overlooked places beyond the reach of constant alerts."],
+     a:3, ex:"Attic light, snowfall, deep woods &ldquo;where no alert can find you&rdquo; — quiet's last addresses are the unvisited ones."},
+    {q:"The word &ldquo;retreated&rdquo; (line 9) suggests that Quiet",
+     opts:["has withdrawn, like someone pushed back — but has not disappeared.",
+           "has been defeated forever.",
+           "is hiding from the authorities.",
+           "secretly enjoys the modern world."],
+     a:0, ex:"The line insists: &ldquo;You have not vanished.&rdquo; Retreat is a strategic withdrawal, not extinction."},
+    {q:"The final couplet (lines 13&ndash;14) contributes to the poem by",
+     opts:["forgiving people entirely for the change.",
+           "blaming technology companies alone.",
+           "placing responsibility on people for leaving quiet no room in their lives.",
+           "promising that quiet will return on its own."],
+     a:2, ex:"&ldquo;Our crime&rdquo; turns the poem's accusation homeward: the fault lies in how we fill our own hours."},
+    {q:"The comparison &ldquo;patient as the farms&rdquo; (line 4) evokes",
+     opts:["the speaker's childhood pet.",
+           "a slower, older rhythm of life.",
+           "modern farming technology.",
+           "the impatience of country living."],
+     a:1, ex:"Farms move at the pace of seasons; the simile ties quiet to that unhurried, older world."},
+    {q:"The overall tone of the poem is best described as",
+     opts:["furious and vengeful.",
+           "indifferent and flat.",
+           "celebratory and proud.",
+           "wistful and gently critical."],
+     a:3, ex:"The speaker misses an old friend and admits &ldquo;our crime&rdquo; — longing mixed with soft self-reproach."}
+  ]
+},
+{
+  n:9, title:"Four Times I Heard the Violin", byline:"an AE original poem",
+  lines:[
+    "The first time was an accident of rain:",
+    "I ducked inside a hall to wait it out,",
+    "And one thin violin, against the drum",
+    "Of weather on the roof, lit up the dark —",
+    "A single match struck in a sleeping house.",
+    "|The second time, I paid to find that door.",
+    "The bow leaned in; the note rose like a kite",
+    "That tugged my breath behind it into air,",
+    "And when it dove, my pulse dove with it too,",
+    "Glad to be dragged wherever music went.",
+    "|The third time, I arrived an hour early",
+    "And watched them tune — the small, unlovely sounds,",
+    "Loose strings and scales, the scaffolding of wonder —",
+    "And loved it more for seeing how it's built:",
+    "Even the plainest plank can hold a bridge.",
+    "|The fourth time, snow. Half of the seats were empty.",
+    "She played as if the storm had bought a ticket,",
+    "And every empty chair was full of listening.",
+    "I walked home through the drifts and did not feel them;",
+    "The cold had no authority that night.",
+    "|I do not play. My hands are plain as spoons.",
+    "But four times now a stranger with a bow",
+    "Has rearranged the furniture in me,",
+    "Thrown open windows I forgot were there,",
+    "And left me tidier, and wilder, both."
+  ],
+  notes:[],
+  questions:[
+    {q:"Which line from the poem best illustrates how the speaker first encountered the music?",
+     opts:["&ldquo;I ducked inside a hall to wait it out&rdquo; (line 2)",
+           "&ldquo;The bow leaned in; the note rose like a kite&rdquo; (line 7)",
+           "&ldquo;And watched them tune — the small, unlovely sounds&rdquo; (line 12)",
+           "&ldquo;I walked home through the drifts and did not feel them&rdquo; (line 19)"],
+     a:0, ex:"The first meeting was &ldquo;an accident of rain&rdquo; — the speaker only entered the hall to escape the weather."},
+    {q:"The metaphor &ldquo;A single match struck in a sleeping house&rdquo; (line 5) suggests that",
+     opts:["the concert hall caught fire that night.",
+           "the music brought sudden light and life to a dull moment.",
+           "the speaker fell asleep during the storm.",
+           "the building had been abandoned for years."],
+     a:1, ex:"One small flame wakes a dark house — one thin violin wakes the gray, rained-out evening."},
+    {q:"In lines 7&ndash;9, comparing the note to a kite conveys",
+     opts:["that the concert was held outdoors.",
+           "that the violinist learned to play as a child.",
+           "the music's power to lift the listener and pull them along.",
+           "that the weather inside the hall was windy."],
+     a:2, ex:"The kite &ldquo;tugged my breath behind it&rdquo; and the pulse dives with it — the listener is carried wherever the melody goes."},
+    {q:"Stanza 3 (lines 11&ndash;15) contributes to the central idea of the poem by",
+     opts:["showing that understanding how music is built deepens the speaker's love for it.",
+           "proving that tuning is unpleasant to hear.",
+           "revealing the speaker's ambition to build bridges.",
+           "criticizing the hall's poor construction."],
+     a:0, ex:"Seeing the &ldquo;scaffolding of wonder&rdquo; — the plain work behind the beauty — makes the speaker love the music &ldquo;more.&rdquo;"},
+    {q:"The line &ldquo;Even the plainest plank can hold a bridge&rdquo; (line 15) most nearly means that",
+     opts:["bridges are usually made of wood.",
+           "humble beginnings can support something remarkable.",
+           "the violin was inexpensive.",
+           "planning ahead is unnecessary."],
+     a:1, ex:"Loose strings and dull scales — plain planks — are what the soaring music finally stands on."},
+    {q:"The image &ldquo;every empty chair was full of listening&rdquo; (line 18) conveys",
+     opts:["that the chairs had been reserved in advance.",
+           "that the speaker felt lonely in the crowd.",
+           "the intensity of the performance despite the small audience.",
+           "that the concert was canceled because of snow."],
+     a:2, ex:"The paradox — empty yet full — shows the music filling the hall completely, no matter how few came."},
+    {q:"The line &ldquo;The cold had no authority that night&rdquo; (line 20) suggests that",
+     opts:["the weather suddenly turned warm.",
+           "the speaker wore an unusually heavy coat.",
+           "winter ended early that year.",
+           "the music's effect outlasted the concert and overpowered discomfort."],
+     a:3, ex:"The speaker walks home through snowdrifts and &ldquo;did not feel them&rdquo; — the performance still commands more power than the cold."},
+    {q:"The phrase &ldquo;My hands are plain as spoons&rdquo; (line 21) serves to",
+     opts:["contrast the speaker's ordinariness with the music's transformative power.",
+           "show that the speaker is eating during the concert.",
+           "describe the speaker's job in a kitchen.",
+           "mock the violinist's playing."],
+     a:0, ex:"The speaker claims no talent at all — which makes the music's deep effect on an ordinary listener the whole point."},
+    {q:"The metaphor of rearranged furniture and opened windows (lines 23&ndash;24) suggests that the music",
+     opts:["damaged the speaker's home.",
+           "made the speaker plan to redecorate.",
+           "changed the speaker inwardly, refreshing how they see and feel.",
+           "left the speaker confused."],
+     a:2, ex:"The &ldquo;furniture&rdquo; is inside the speaker: familiar feelings rearranged, forgotten windows thrown open to the air."},
+    {q:"How do the numbered encounters — first, second, third, fourth — contribute to the poem?",
+     opts:["They prove the speaker attends too many concerts.",
+           "They create suspense about the violinist's identity.",
+           "They organize the poem strictly by season.",
+           "They show the music's effect deepening with each meeting."],
+     a:3, ex:"From accident, to ticket, to arriving early, to braving a snowstorm — each numbered visit marks a deeper devotion."}
+  ]
+},
+{
+  n:10, title:"The Lighthouse Keeper's Answer", byline:"an AE original poem",
+  lines:[
+    "They ask me, when the ferry brings supplies,",
+    "If loneliness has worn me down to stone —",
+    "One man, one lamp, a mile of moody skies,",
+    "Twelve steps of spiral stair I climb alone.",
+    "|I tell them: when the dusk begins to lean,",
+    "I wind the clockwork, trim the steady flame,",
+    "And send a spoke of light across the green",
+    "Black water, calling ships I cannot name.",
+    "|Somewhere a captain, squinting through the spray,",
+    "Corrects his wheel because my window burned;",
+    "Somewhere a crew will dock at break of day",
+    "And never know whose light their trust has earned.",
+    "|The gulls keep office hours on my rail;",
+    "The weather writes its drafts across my glass;",
+    "I've learned the seven dialects of gale,",
+    "And which clouds bluff, and which will never pass.",
+    "|Lonely? The word sits strangely on this tower.",
+    "A hundred ships have leaned upon my light.",
+    "I hold a quiet post of quiet power:",
+    "To be, for strangers, one sure thing at night.",
+    "|So when the ferry asks, I only smile",
+    "And point to where the water meets the sky:",
+    "Company is measured mile by mile,",
+    "In every keel my beam has guided by."
+  ],
+  notes:[],
+  questions:[
+    {q:"The question posed in lines 1&ndash;4 sets up the poem by",
+     opts:["describing the keeper's dangerous job.",
+           "explaining how supplies reach the island.",
+           "listing the keeper's daily chores.",
+           "introducing the assumption — which the poem will answer — that solitude must be a burden."],
+     a:3, ex:"Visitors assume loneliness has &ldquo;worn him down&rdquo;; the rest of the poem is the keeper's reply to that assumption."},
+    {q:"The phrase &ldquo;worn me down to stone&rdquo; (line 2) suggests the visitors imagine the keeper has become",
+     opts:["physically ill from the island climate.",
+           "hardened and lifeless from isolation.",
+           "wealthy from his steady salary.",
+           "famous along the coast."],
+     a:1, ex:"Stone is cold, unfeeling, eroded — the image the visitors project onto a man living alone."},
+    {q:"The phrase &ldquo;a spoke of light&rdquo; (line 7) presents the beam as",
+     opts:["part of a great turning wheel reaching across the water.",
+           "a spoken message in secret code.",
+           "a weak and flickering signal.",
+           "a decoration on the tower."],
+     a:0, ex:"A lighthouse beam sweeps in a circle like a wheel; each &ldquo;spoke&rdquo; reaches outward as it turns."},
+    {q:"Lines 9&ndash;12 develop the poem's central idea by showing that",
+     opts:["captains rarely notice lighthouses.",
+           "the keeper knows every passing ship by name.",
+           "the keeper's work quietly protects people he will never meet.",
+           "ships are only permitted to dock at daybreak."],
+     a:2, ex:"A captain corrects course, a crew docks safely — and neither will ever know the keeper. His purpose is invisible but real."},
+    {q:"The line &ldquo;The weather writes its drafts across my glass&rdquo; (line 14) uses personification to suggest that",
+     opts:["the tower's window needs cleaning.",
+           "the weather is constantly changing and revising itself.",
+           "the keeper writes daily reports about storms.",
+           "the glass has been cracked by the wind."],
+     a:1, ex:"A writer's drafts are versions that keep changing — like the shifting weather sketching itself on the window."},
+    {q:"The claim to know &ldquo;the seven dialects of gale&rdquo; (line 15) emphasizes the keeper's",
+     opts:["study of foreign languages.",
+           "fear of powerful storms.",
+           "boredom with the island weather.",
+           "deep familiarity with his environment."],
+     a:3, ex:"Telling storm winds apart like dialects of one language takes years of close, expert attention."},
+    {q:"In line 16, saying that some clouds &ldquo;bluff&rdquo; means that they",
+     opts:["threaten storms that never actually arrive.",
+           "move faster than the other clouds.",
+           "block the light from the tower.",
+           "appear only after dark."],
+     a:0, ex:"A bluff is an empty threat — these clouds look stormy but never deliver."},
+    {q:"Lines 17&ndash;20 answer the poem's opening question by suggesting that",
+     opts:["the keeper is lonely but hides it well.",
+           "power matters more to the keeper than friendship.",
+           "a sense of purpose can stand in the place of company.",
+           "the keeper dislikes the visitors' questions."],
+     a:2, ex:"Being &ldquo;one sure thing at night&rdquo; for a hundred ships gives the keeper a purpose that crowds out loneliness."},
+    {q:"The phrase &ldquo;one sure thing at night&rdquo; (line 20) presents the keeper's light as",
+     opts:["a symbol of reliability in an uncertain world.",
+           "the only light on the entire coast.",
+           "a substitute for the missing stars.",
+           "a warning for ships to stay away."],
+     a:0, ex:"For sailors in darkness, the light is the fixed, dependable point — sureness itself."},
+    {q:"The overall tone of the keeper's answer is best described as",
+     opts:["bitter and defensive.",
+           "content and quietly proud.",
+           "desperate and pleading.",
+           "confused and uncertain."],
+     a:1, ex:"He smiles, claims a &ldquo;quiet post of quiet power,&rdquo; and measures his company in guided ships — calm satisfaction throughout."}
+  ]
+},
+{
+  n:11, title:"My Grandmother's Hands", byline:"an AE original poem",
+  lines:[
+    "Her hands remember what her words forget.",
+    "They measure flour by the weight of habit,",
+    "fold and turn, fold and turn, until the dough",
+    "goes smooth as river stones beneath her palms.",
+    "|Those hands once threaded needles in dim light,",
+    "stitched winter coats from bolts of stubborn wool,",
+    "counted out coins in a new country's colors,",
+    "and learned the bus routes better than the maps.",
+    "|They held my hand across the street to school,",
+    "and turned the pages of two alphabets,",
+    "patient with both, at home in neither one,",
+    "building a bridge and walking it each day.",
+    "|Now, when I visit, she forgets my questions",
+    "but never once forgets to feed me first.",
+    "The kettle knows her step; the cups assemble;",
+    "the dough, as always, rises on the sill.",
+    "|I watch her work and try to memorize",
+    "the choreography of fifty years:",
+    "the flick of wrist, the thumbprint in the center,",
+    "the pinch that seals each dumpling like a letter",
+    "mailed from her childhood to my crowded plate.",
+    "|Some inheritance is money, land, or names.",
+    "Mine is a motion: fold and turn, fold and turn —",
+    "a language spoken hand to hand, so quiet",
+    "it needs no words, and cannot be forgotten,",
+    "rising in me the way the dough still rises."
+  ],
+  notes:[],
+  questions:[
+    {q:"The opening line (&ldquo;Her hands remember what her words forget&rdquo;) introduces a central idea of the poem by suggesting that",
+     opts:["the grandmother refuses to speak to visitors.",
+           "skills and love can outlast a fading memory.",
+           "hands are physically stronger than minds.",
+           "the grandmother has forgotten her family entirely."],
+     a:1, ex:"Her words may fail, but what her hands know — kneading, sealing, caring — endures. The whole poem builds on this contrast."},
+    {q:"The details in lines 5&ndash;8 (needles, coats, coins, bus routes) primarily convey",
+     opts:["the grandmother's resourcefulness through years of hardship in a new country.",
+           "the grandmother's lifelong love of fashion.",
+           "how confusing public transportation can be.",
+           "the family's great wealth."],
+     a:0, ex:"Sewing coats from &ldquo;stubborn wool,&rdquo; counting unfamiliar coins, mastering bus routes — each detail shows determined survival in a new land."},
+    {q:"The image of &ldquo;two alphabets&hellip; building a bridge and walking it each day&rdquo; (lines 10&ndash;12) suggests that the grandmother",
+     opts:["taught reading at a local school.",
+           "preferred her first language to her second.",
+           "lived between two cultures and connected them daily.",
+           "never learned to read either language well."],
+     a:2, ex:"&ldquo;Patient with both, at home in neither&rdquo; captures a life lived between two worlds — and the daily work of joining them."},
+    {q:"Lines 13&ndash;14 (&ldquo;she forgets my questions / but never once forgets to feed me first&rdquo;) convey that",
+     opts:["the grandmother is a poor listener.",
+           "meals matter more to her than conversation.",
+           "the speaker visits only at mealtimes.",
+           "her care for the speaker persists even as her memory fades."],
+     a:3, ex:"Questions slip away, but the instinct to nourish never does — love outlasting memory, the poem's heart."},
+    {q:"The line &ldquo;The kettle knows her step; the cups assemble&rdquo; (line 15) uses personification to suggest",
+     opts:["that the kitchen is magically enchanted.",
+           "how deeply routine and habit fill the grandmother's home.",
+           "that the speaker must now do the chores.",
+           "that the grandmother employs helpers."],
+     a:1, ex:"Objects seem to move on their own because her routines are so worn-in — fifty years of habit animate the kitchen."},
+    {q:"Calling her movements &ldquo;the choreography of fifty years&rdquo; (line 18) presents the grandmother's cooking as",
+     opts:["a practiced art refined over a lifetime.",
+           "a dance performed to entertain guests.",
+           "an exhausting daily burden.",
+           "a simple skill anyone could learn quickly."],
+     a:0, ex:"Choreography is designed, rehearsed movement — her kitchen work has the polish of a lifelong art."},
+    {q:"The simile comparing a dumpling to &ldquo;a letter / mailed from her childhood to my crowded plate&rdquo; (lines 20&ndash;21) suggests that",
+     opts:["the grandmother writes letters while she cooks.",
+           "the speaker's plate holds too much food.",
+           "mail from her homeland arrives too slowly.",
+           "her cooking carries memory and tradition across generations."],
+     a:3, ex:"Each sealed dumpling is a message from her past delivered to the speaker's present — food as correspondence between generations."},
+    {q:"Lines 22&ndash;23 (&ldquo;Some inheritance is money, land, or names. / Mine is a motion&rdquo;) develop the poem's meaning by",
+     opts:["complaining that the speaker will inherit nothing.",
+           "redefining inheritance as a skill and gesture passed down.",
+           "comparing the value of land to the value of recipes.",
+           "listing the property the family owns."],
+     a:1, ex:"The poem replaces material inheritance with something better: a motion of the hands, passed directly from her body to the speaker's."},
+    {q:"The repetition of &ldquo;fold and turn, fold and turn&rdquo; (lines 3 and 23) serves to",
+     opts:["echo the repeated, rhythmic motion being passed from one generation to the next.",
+           "show that the speaker is bored by the process.",
+           "describe the folding of laundry.",
+           "signal that the poem is unfinished."],
+     a:0, ex:"The phrase recurs just as the motion itself recurs — first in her hands, then in the speaker's."},
+    {q:"The overall tone of the poem is best described as",
+     opts:["resentful and weary.",
+           "detached and observational.",
+           "loving and reverent.",
+           "anxious and fearful."],
+     a:2, ex:"The speaker watches, memorizes, and treasures — every image honors the grandmother and what she passes on."}
+  ]
+},
+{
+  n:12, title:"The Third Leg", byline:"an AE original poem",
+  lines:[
+    "Four hundred meters, quartered among four,",
+    "And I am third: the one nobody films,",
+    "Not the clean start, not the celebrated finish —",
+    "The bridge between the beginning and the end.",
+    "|The gun is someone else's thunder. I",
+    "Wait at my mark and read my teammate's stride,",
+    "Her breath arriving seconds before she does,",
+    "The way you hear a train before its light.",
+    "|Then everything I've practiced shrinks to this:",
+    "One backward reach, blind, at a dead sprint,",
+    "Trusting a slap of metal into palm —",
+    "The whole race balanced on a half a second.",
+    "|They say the baton is just a hollow tube.",
+    "They have not felt it land: a runner's morning laps,",
+    "Her sacrificed Saturdays, her shin splints, all",
+    "Compressed into three ounces of aluminum.",
+    "|I run my hundred like a held-in shout.",
+    "The stadium is a blur of someone's colors.",
+    "My legs argue; my lungs file their complaints;",
+    "I overrule them both, and reach, and give.",
+    "|Fourth leg away — she flies. And I slow down",
+    "Into the soft collapse all runners know,",
+    "Having carried our one and only name",
+    "As far as I was asked, as fast as trust."
+  ],
+  notes:[],
+  questions:[
+    {q:"The speaker's description of being &ldquo;the one nobody films&rdquo; (line 2) establishes",
+     opts:["the speaker's role as an overlooked but essential part of the team.",
+           "that the race was not recorded.",
+           "the speaker's wish to quit the relay team.",
+           "that cameras are not allowed at the meet."],
+     a:0, ex:"The third leg is neither the start nor the finish — unseen, yet &ldquo;the bridge&rdquo; the race depends on."},
+    {q:"The simile in lines 7&ndash;8 (&ldquo;The way you hear a train before its light&rdquo;) conveys",
+     opts:["that the track is built near a railway.",
+           "the roar of the cheering crowd.",
+           "the speaker sensing the teammate's approach before seeing her.",
+           "the danger of standing on the track."],
+     a:2, ex:"Like a train announced by sound before sight, the teammate's breath arrives first — the speaker reads her coming by ear."},
+    {q:"The detail that the reach is made &ldquo;blind, at a dead sprint&rdquo; (line 10) emphasizes",
+     opts:["the poor lighting in the stadium.",
+           "the deep trust the baton exchange requires.",
+           "the speaker's fear of falling.",
+           "a mistake the speaker once made."],
+     a:1, ex:"Reaching backward without looking, at full speed, is an act of pure trust in a teammate."},
+    {q:"Read lines 13&ndash;16 from the poem. These lines suggest that the baton",
+     quote:"They say the baton is just a hollow tube. / They have not felt it land: a runner's morning laps, / Her sacrificed Saturdays, her shin splints, all / Compressed into three ounces of aluminum.",
+     opts:["is too heavy to carry comfortably.",
+           "should be made of a better material.",
+           "belongs to the fastest runner on the team.",
+           "carries the invisible weight of every teammate's effort."],
+     a:3, ex:"Morning laps, lost Saturdays, shin splints — all &ldquo;compressed&rdquo; into the tube. The baton holds the whole team's sacrifice."},
+    {q:"The phrase &ldquo;a held-in shout&rdquo; (line 17) characterizes the speaker's running as",
+     opts:["controlled intensity — power kept just barely contained.",
+           "silent and completely effortless.",
+           "angry at the competing teams.",
+           "slower than in practice."],
+     a:0, ex:"A shout held in is force under pressure — the sprint is explosive energy kept under control."},
+    {q:"In line 19, the legs that &ldquo;argue&rdquo; and the lungs that &ldquo;file their complaints&rdquo; are examples of",
+     opts:["the speaker's poor physical training.",
+           "personification that dramatizes the body's protest against effort.",
+           "a conversation between teammates.",
+           "the coach's shouted instructions."],
+     a:1, ex:"Body parts speak like disgruntled workers — a witty way to dramatize exhaustion in mid-race."},
+    {q:"The words &ldquo;I overrule them both&rdquo; (line 20) suggest that the speaker",
+     opts:["pushes through pain by force of will.",
+           "stops running in order to rest.",
+           "argues with the race officials.",
+           "hands the baton off early."],
+     a:0, ex:"To overrule is to reject the complaint and proceed — willpower overriding the body's objections."},
+    {q:"The phrase &ldquo;the soft collapse all runners know&rdquo; (line 22) conveys",
+     opts:["a serious injury on the track.",
+           "embarrassment at losing the race.",
+           "a shared, familiar exhaustion that follows total effort.",
+           "the end of the speaker's running career."],
+     a:2, ex:"&ldquo;All runners know&rdquo; makes the collapse a common experience — the honest cost of giving everything."},
+    {q:"The reference to &ldquo;our one and only name&rdquo; (line 23) emphasizes",
+     opts:["that the four runners are all related.",
+           "the team's shared identity over individual glory.",
+           "the school's famous reputation.",
+           "the name engraved on the baton."],
+     a:1, ex:"Four runners, one name — the relay is run for something held in common, not for any single runner."},
+    {q:"Which statement best expresses a theme of the poem?",
+     opts:["Winning is the only true measure of success.",
+           "Natural talent matters more than practice.",
+           "Unseen roles and mutual trust hold a team together.",
+           "Individual events are more difficult than relays."],
+     a:2, ex:"The unfilmed third leg, the blind handoff, the baton heavy with shared sacrifice — every image argues that teams run on trust."}
+  ]
+},
+{
+  n:13, title:"The Whisper Scene", byline:"an AE original story", kind:"prose",
+  lines:[
+    "Nora had spent her winter break turning the school's creaky one-act play into something she was quietly proud of. She had retyped every scene, cut the dull second argument, and drawn the set on graph paper, chair by chair. Rehearsals belonged to her the way the library belonged to the librarians: not officially, but completely.",
+    "Then, on the first Tuesday of the semester, Priya Raman transferred in.",
+    "She arrived at rehearsal with no script and no apologies, sat in the third row for twenty minutes, and then raised her hand. \u201cWhat if the messenger doesn't leave in scene two?\u201d she asked. \u201cWhat if she stays, and hears everything she isn't supposed to hear?\u201d",
+    "Ms. Calloway, who had directed the play the same way for eleven years, slowly lowered her coffee. \u201cGo on,\u201d she said.",
+    "Nora felt the graph paper crumple somewhere inside her chest.",
+    "By Friday, the messenger stayed. By the following week, the second argument — the one Nora had so carefully cut — was back, rewritten as a whispered scene behind a paper screen, and it was, Nora had to admit, the best thing in the play.",
+    "\u201cYou don't like me,\u201d Priya said one afternoon, materializing beside the prop table where Nora was labeling a box of lanterns. It was not an accusation. It was an observation, delivered the way you might mention rain.",
+    "\u201cI don't know you,\u201d said Nora.",
+    "\u201cThat's fair.\u201d Priya picked up a lantern and turned it over in her hands. \u201cAt my old school I learned that if you wait politely for your turn, the play closes before your turn arrives. So I stopped waiting. It isn't personal. Your set drawings are the best I've seen from anyone our age — I told Ms. Calloway so on my first day.\u201d",
+    "Nora blinked. The compliment did not fit anywhere in the story she had been telling herself, and it sat awkwardly on top of her resentment, like a hat on a fence post.",
+    "\u201cThe whisper scene was your idea, structurally,\u201d Priya went on. \u201cYou cut the argument because it was dull out loud. I only put it back where it couldn't be heard. Half of that change is yours.\u201d",
+    "On opening night, the whispered scene landed exactly as Priya had promised: the audience leaned forward as one body, straining after words they were never meant to catch. From the wings, Nora watched Ms. Calloway silently mouth every line, and felt her own feelings sort themselves at last — not into friendship exactly, and not into surrender, but into something she suspected was respect, which was less comfortable than either."
+  ],
+  notes:[],
+  questions:[
+    {q:"The comparison of rehearsals to the library (paragraph 1) suggests that Nora",
+     opts:["was officially in charge of the drama program.",
+           "felt a deep, unofficial ownership of the production.",
+           "preferred reading to the theater.",
+           "was rarely allowed to attend rehearsals."],
+     a:1, ex:"Like the librarians' claim on the library, Nora's claim was &ldquo;not official, but complete&rdquo; — she felt the play was hers."},
+    {q:"The sentence &ldquo;Nora felt the graph paper crumple somewhere inside her chest&rdquo; (paragraph 5) conveys",
+     opts:["a sudden physical illness.",
+           "Nora's fear of Ms. Calloway.",
+           "Nora's sense that her careful plans were being crushed.",
+           "the sound of paper in the quiet theater."],
+     a:2, ex:"The graph paper stands for her meticulous planning; feeling it crumple is feeling her control of the play give way."},
+    {q:"The detail that Ms. Calloway &ldquo;had directed the play the same way for eleven years&rdquo; (paragraph 4) makes her response to Priya's idea",
+     opts:["more surprising and significant.",
+           "easy to predict.",
+           "a sign of boredom with teaching.",
+           "an insult to Nora."],
+     a:0, ex:"When someone set in her ways for eleven years says &ldquo;Go on,&rdquo; the moment carries real weight — Priya's idea must be striking."},
+    {q:"Which of Priya's traits is most central to the events of the passage?",
+     opts:["her honesty about her weaknesses",
+           "her talent for acting",
+           "her fear of being ignored",
+           "her ability to influence others"],
+     a:3, ex:"In one afternoon she moves an eleven-year routine; by Friday the play has changed. Her influence drives every event."},
+    {q:"Describing Priya's remark as &ldquo;delivered the way you might mention rain&rdquo; (paragraph 7) characterizes it as",
+     opts:["gloomy and discouraging.",
+           "calm and matter-of-fact.",
+           "whispered and secretive.",
+           "angry and accusing."],
+     a:1, ex:"Mentioning rain is neutral small talk — Priya states &ldquo;You don't like me&rdquo; as plain fact, without heat."},
+    {q:"Priya's statement that &ldquo;if you wait politely for your turn, the play closes before your turn arrives&rdquo; (paragraph 9) reveals that she",
+     opts:["was expelled from her old school.",
+           "believes rudeness is a virtue.",
+           "learned to assert herself rather than wait to be noticed.",
+           "dislikes plays with small casts."],
+     a:2, ex:"Her boldness is a lesson from experience: opportunities pass those who only wait. &ldquo;So I stopped waiting.&rdquo;"},
+    {q:"The simile of the compliment sitting &ldquo;like a hat on a fence post&rdquo; (paragraph 10) suggests that",
+     opts:["the compliment did not fit the story Nora had built about Priya.",
+           "Priya's compliment was insincere.",
+           "Nora was wearing an unusual hat.",
+           "the prop table was disorganized."],
+     a:0, ex:"A hat on a fence post is in the wrong place. Praise from a supposed rival has nowhere to sit in Nora's version of events."},
+    {q:"In paragraph 11, Priya's claim that &ldquo;Half of that change is yours&rdquo; primarily serves to",
+     opts:["take back her earlier compliment.",
+           "acknowledge Nora's contribution and share the credit.",
+           "prove the scene was entirely Priya's idea.",
+           "criticize Ms. Calloway's direction."],
+     a:1, ex:"Priya traces the whisper scene back to Nora's original cut — deliberately handing half the credit to her."},
+    {q:"The audience &ldquo;straining after words they were never meant to catch&rdquo; (paragraph 12) shows that",
+     opts:["the theater's acoustics were poor.",
+           "the play was too quiet to follow.",
+           "the whispered scene worked exactly as intended.",
+           "the audience was losing interest."],
+     a:2, ex:"Leaning forward &ldquo;as one body&rdquo; is total engagement — the scene's whisper pulls the whole house in, just as Priya promised."},
+    {q:"The final sentence suggests that Nora's feelings have settled into",
+     opts:["a warm friendship with Priya.",
+           "complete surrender to Priya's talent.",
+           "renewed resentment.",
+           "a complicated respect that is harder to hold than either anger or friendship."],
+     a:3, ex:"&ldquo;Not friendship&hellip; not surrender&hellip; something she suspected was respect, which was less comfortable than either.&rdquo;"}
+  ]
+},
+{
+  n:14, title:"The Two Signatures", byline:"an AE original story", kind:"prose",
+  lines:[
+    "The box was labeled WORKSHOP — FINAL YEAR, and Mira's job was simple: scan every page, then shred it.",
+    "Her father's furniture workshop had closed when she was seven. She remembered the smell of it — cedar and machine oil — better than she remembered the closing itself, which the family discussed the way people discuss an old injury: rarely, and with a change of subject kept ready.",
+    "The letter was the forty-first page in the box. It was addressed to the city licensing board, it recommended that Ruiz Woodworks be denied recertification, and it was signed, in confident blue ink, Elena Solano.",
+    "Mira read the signature three times. Solano. As in Talia Solano, who had saved her a seat in homeroom on the worst first day of her life; who split every dessert straight down the middle; whose mother — Mira now remembered, with a cold, sliding feeling — \u201cworked in safety inspection, or something.\u201d",
+    "She did not scan the letter. She folded it into her pocket, which was against the rules of the job, and possibly against some larger rule she couldn't name.",
+    "That night she typed and deleted four different messages to Talia. The versions ranged from casual to unforgivable. She sent none of them.",
+    "Revenge, she discovered, was easy to plan and impossible to size. Should she stop sitting with Talia at lunch? That punished no one but herself. Tell the whole grade? That punished Talia, who had signed nothing. Somewhere in the middle of the night, Mira understood that anger was like the workshop's old bandsaw: powerful, precise-looking, and entirely indifferent to which fingers it took.",
+    "On Sunday she returned to the box, telling herself she was only finishing the job. Page fifty-two was a copy of the same letter — but this copy still had a second page the first had lost. On it, Elena Solano had listed her reasons: a wiring fault in the finishing room, a fire exit blocked by lumber racks, a dust collector two years past its service date.",
+    "Mira sat back on her heels. She had grown up on the story of the workshop's closing the way you grow up on any family story — whole, smooth, and with the sharp parts sanded off. Her father was not a liar. But the letter in her pocket and the page in her hand were both true at once, and they did not tell the same story.",
+    "At school on Monday, Talia waved her over, holding two spoons and one pudding cup, and Mira felt the whole weekend rearrange itself around the gesture.",
+    "\u201cYou look like you didn't sleep,\u201d Talia said, handing her a spoon.",
+    "\u201cI found something,\u201d Mira said. \u201cAbout your mom. And my dad. Can I just — ask you about it? Before I decide anything?\u201d",
+    "Talia's smile faded into something more serious, and more valuable. \u201cThat,\u201d she said, \u201cis the nicest thing anyone's asked me all year.\u201d"
+  ],
+  notes:[],
+  questions:[
+    {q:"The family discussed the workshop's closing &ldquo;the way people discuss an old injury&rdquo; (paragraph 2), suggesting the topic was",
+     opts:["painful and usually avoided.",
+           "a source of family jokes.",
+           "discussed openly and often.",
+           "completely forgotten by everyone."],
+     a:0, ex:"An old injury is mentioned &ldquo;rarely, with a change of subject kept ready&rdquo; — the closing still hurts, so the family steers around it."},
+    {q:"The &ldquo;cold, sliding feeling&rdquo; in paragraph 4 conveys Mira's",
+     opts:["physical chill in the storage room.",
+           "dawning dread as she connects the signature to her friend.",
+           "excitement at solving a mystery.",
+           "relief that the job is almost finished."],
+     a:1, ex:"The feeling arrives exactly as the memory clicks into place — Talia's mother and the letter-writer are the same person."},
+    {q:"The main conflict Mira experiences in the passage is between",
+     opts:["her schoolwork and her weekend job.",
+           "her father and the licensing board.",
+           "her loyalty to her father and her friendship with Talia.",
+           "her own memory and her father's memory."],
+     a:2, ex:"The letter sets her father's loss against her closest friendship — the pull in two directions drives everything that follows."},
+    {q:"Mira's typing and deleting of four messages (paragraph 6) primarily shows",
+     opts:["her poor writing skills.",
+           "that her phone was malfunctioning.",
+           "that Talia was ignoring her.",
+           "her inner conflict about how — and whether — to confront Talia."],
+     a:3, ex:"Four drafts &ldquo;from casual to unforgivable,&rdquo; none sent: she cannot settle on what she even wants to say."},
+    {q:"The comparison of anger to the workshop's bandsaw (paragraph 7) suggests that anger",
+     opts:["is a useful tool when handled carefully.",
+           "cuts without caring whom it harms — including its user.",
+           "belongs only in the past.",
+           "is louder than it is dangerous."],
+     a:1, ex:"A bandsaw is powerful and &ldquo;indifferent to which fingers it takes&rdquo; — every revenge Mira plans wounds someone it shouldn't."},
+    {q:"The second page found in paragraph 8 contributes to the passage by",
+     opts:["proving that Elena Solano lied to the board.",
+           "showing that Mira's father was careless with paperwork.",
+           "complicating the simple story Mira grew up believing.",
+           "revealing that the workshop never actually closed."],
+     a:2, ex:"The listed safety faults suggest the letter may have been honest — the villain of the family story suddenly has reasons."},
+    {q:"The phrase &ldquo;with the sharp parts sanded off&rdquo; (paragraph 9) suggests that family stories are often",
+     opts:["smoothed and simplified over time.",
+           "mostly about carpentry.",
+           "invented entirely.",
+           "too painful to ever repeat."],
+     a:0, ex:"Sanding removes edges; retelling removes complications. The woodworking image fits the family's own trade."},
+    {q:"The detail of the &ldquo;two spoons and one pudding cup&rdquo; (paragraph 10) serves to",
+     opts:["show that Talia forgot her own lunch.",
+           "make the abstract feud feel small next to the concrete friendship.",
+           "prove that the cafeteria food is poor.",
+           "remind Mira of her father's workshop."],
+     a:1, ex:"Against a weekend of imagined feuds stands one real, ordinary act of sharing — and the weekend &ldquo;rearranges itself&rdquo; around it."},
+    {q:"Mira's request to &ldquo;ask you about it&hellip; before I decide anything&rdquo; (paragraph 12) reflects the passage's theme that",
+     opts:["secrets should never be shared.",
+           "friendship always matters less than family.",
+           "revenge is sometimes justified.",
+           "fair judgment requires listening before concluding."],
+     a:3, ex:"Mira chooses questions over accusations — the opposite of the bandsaw. She will hear the other side before deciding."},
+    {q:"Talia calls Mira's question &ldquo;the nicest thing anyone's asked me all year&rdquo; (paragraph 13) most likely because",
+     opts:["being asked, rather than accused, treats her with respect.",
+           "no one usually speaks to her at school.",
+           "she already knew about the letter.",
+           "she wanted to share the pudding."],
+     a:0, ex:"Mira could have judged her by her mother's signature; instead she offers Talia the chance to speak first."}
+  ]
+},
+{
+  n:15, title:"Six Skips", byline:"an AE original story", kind:"prose",
+  lines:[
+    "Etta saw to the horse before she saw to herself. It was not a rule anyone had taught her in words; two winters of carrying the mountain mail had taught it to her joints. She stripped the saddle, rubbed down the gelding's steaming back with a fistful of dry grass, and checked each hoof in turn while the creek did its cold, glittering work on the mud.",
+    "The gelding, satisfied, wandered to a patch of new clover and began the serious business of ignoring her.",
+    "Only then did Etta look up the slope at the orchard. Two years had done things to it. Two years had done things to her, too, but there was no one on the road to point them out.",
+    "The house was smaller than her memory of it, the way houses are. Her brother Milo came off the porch at a run and stopped a stride short, suddenly shy of her — of the mail-service coat, maybe, or of the way she stood: weight even, hands free, like someone who had learned that trouble rarely sends a letter ahead.",
+    "\u201cYou're taller,\u201d he accused.",
+    "\u201cYou're louder,\u201d she said, and the last stride between them closed on its own.",
+    "At supper her mother watched Etta eat and said nothing about the scar above her wrist, or about the way she had chosen the chair that faced the door. The mountain routes had a reputation. The winter route had a worse one.",
+    "Afterward, Milo dragged her down to the creek with a pocketful of flat stones. \u201cYou still remember how?\u201d he demanded, and Etta's first throw skipped six times, easy as breathing, exactly as it had when she was twelve.",
+    "It was during the second throw that she caught herself reading the ridgeline — counting the gaps in the tree cover, marking where a rider could and couldn't be seen — the way she did on the route, the way she now did everywhere, without ever deciding to.",
+    "The stone sank after one skip. Milo hooted with the pure, merciless joy of a younger brother.",
+    "Etta laughed too. And then she made herself do the harder thing: she sat down on the cold bank, put her back to the ridgeline, and watched only the water and the boy. Being watchful, she had learned, was a skill. She suspected that being home might be one too — and that she was two years out of practice."
+  ],
+  notes:[],
+  questions:[
+    {q:"The statement that the horse-first rule was taught &ldquo;to her joints&rdquo; rather than in words (paragraph 1) suggests that Etta learned it through",
+     opts:["a training manual.",
+           "her mother's instructions.",
+           "repeated hard experience.",
+           "watching other riders."],
+     a:2, ex:"Lessons that live in the joints are learned by doing — two winters of work, not words, built the habit."},
+    {q:"The gelding beginning &ldquo;the serious business of ignoring her&rdquo; (paragraph 2) adds a note of",
+     opts:["danger to the scene.",
+           "gentle humor and contentment.",
+           "sadness about the journey.",
+           "tension between horse and rider."],
+     a:1, ex:"Calling a horse's grazing &ldquo;serious business&rdquo; is affectionate comedy — the animal is relaxed and cared for."},
+    {q:"The observation that the house was &ldquo;smaller than her memory of it, the way houses are&rdquo; (paragraph 4) suggests",
+     opts:["the house had been rebuilt while she was away.",
+           "Etta's family had moved to a new home.",
+           "Etta's eyesight had weakened on the route.",
+           "a universal experience of returning home after growing and changing."],
+     a:3, ex:"&ldquo;The way houses are&rdquo; widens one girl's homecoming into everyone's: places shrink as we grow."},
+    {q:"Milo stops &ldquo;a stride short, suddenly shy of her&rdquo; (paragraph 4) most likely because",
+     opts:["he does not recognize his sister at all.",
+           "he is afraid of the gelding.",
+           "the changes in Etta make her seem briefly unfamiliar.",
+           "he has been told to keep his distance."],
+     a:2, ex:"The coat and her guarded stance are new; for one stride, his sister looks like a stranger wearing his sister's face."},
+    {q:"The phrase &ldquo;like someone who had learned that trouble rarely sends a letter ahead&rdquo; (paragraph 4) characterizes Etta as",
+     opts:["constantly prepared for the unexpected.",
+           "disappointed by the mail service.",
+           "careless about her own safety.",
+           "eager to return to the route."],
+     a:0, ex:"A mail rider joking that trouble never announces itself: she stands ready — weight even, hands free — at all times."},
+    {q:"The mother's silence about the scar and about the chair facing the door (paragraph 7) conveys her",
+     opts:["anger at Etta for leaving home.",
+           "failure to notice the changes.",
+           "fear of her own daughter.",
+           "tactful understanding of what the route has done to Etta."],
+     a:3, ex:"She sees everything and names nothing. The routes &ldquo;had a reputation&rdquo; — the mother understands, and lets it be."},
+    {q:"The first stone skipping &ldquo;six times, easy as breathing&rdquo; (paragraph 8) shows that",
+     opts:["some part of Etta's old self remains untouched.",
+           "Etta practiced skipping stones on the route.",
+           "Milo is a poor teacher.",
+           "the creek is unusually calm."],
+     a:0, ex:"The skill returns instantly, &ldquo;exactly as it had when she was twelve&rdquo; — the childhood self is still in there."},
+    {q:"Etta &ldquo;reading the ridgeline&rdquo; during the second throw (paragraph 9) reveals that",
+     opts:["she expects to be attacked at home.",
+           "her watchfulness has become automatic, even where it is not needed.",
+           "she is looking for a better skipping angle.",
+           "she has spotted another rider approaching."],
+     a:1, ex:"She scans &ldquo;without ever deciding to&rdquo; — vigilance has hardened into reflex that follows her even to the family creek."},
+    {q:"Etta's choice to sit &ldquo;with her back to the ridgeline&rdquo; (paragraph 11) is best understood as",
+     opts:["carelessness she will soon regret.",
+           "a sign that she is too exhausted to stand.",
+           "a deliberate first step toward relearning how to be at ease.",
+           "obedience to her mother's wishes."],
+     a:2, ex:"She &ldquo;made herself do the harder thing&rdquo; — turning away from the habit of watching is a conscious act of coming home."},
+    {q:"The closing idea that &ldquo;being home might be a skill&hellip; two years out of practice&rdquo; expresses the passage's theme that",
+     opts:["home never truly changes.",
+           "skills fade unless they are used daily.",
+           "hard experience changes a person in ways that take effort to undo.",
+           "younger siblings adapt faster than older ones."],
+     a:2, ex:"The route taught her wariness; unlearning it will take practice too. Growth cuts both ways — the passage's central insight."}
+  ]
+},
+{
+  n:16, title:"A Perfect Game", byline:"an AE original story", kind:"prose",
+  lines:[
+    "The workshop occupied what had once been a chapel, and Ines Vane had filled it to the rafters with locks.",
+    "Tomas had interviewed champions before — chess players, fencers, a memory athlete who recited train timetables for fun — and they all shared a certain restlessness, as if ordinary rooms were too easy for them. Vane had it worse than any of them. While they talked, she assembled and disassembled a brass puzzle box without once looking at her hands.",
+    "\u201cPeople assume I retired because I got old,\u201d she said. \u201cI retired because I ran out of opponents. Every lock I was hired to test, I opened. Every cipher, every vault, every prize puzzle in every capital city. In the last ten years of my career, I never once lost.\u201d She set the box down. \u201cYou're young. You think that sounds wonderful.\u201d",
+    "\u201cIt doesn't?\u201d",
+    "\u201cA game you cannot lose is not a game. It is a chore with applause.\u201d",
+    "Tomas wrote that down. Outside, the wind pushed at the chapel's high windows.",
+    "\u201cSo I built myself an opponent,\u201d Vane continued. \u201cIt took nine years. The east wing of this property is a maze — though \u2018maze\u2019 is a small word for it. Its walls move on schedules I wrote and then deliberately destroyed. It rearranges itself. I taught it my habits, and then I taught it to punish them. There was exactly one copy of its logic, and I shredded that copy on my sixtieth birthday.\u201d",
+    "\u201cThen no one alive knows the way through it.\u201d",
+    "\u201cCorrect,\u201d said Vane, with the satisfaction of a craftsman admiring a joint. \u201cIncluding me. Especially me.\u201d",
+    "Tomas's pen stopped. \u201cBut you go in.\u201d",
+    "\u201cEvery year. The first of March. I take three days of water and a whistle I have never had to use.\u201d She smiled, and the smile was the youngest thing in her weathered face. \u201cPeople climb mountains that could kill them, and the world calls it sport. My mountain happens to be indoors, and I built it to know me. I have never felt so evenly matched in my life.\u201d",
+    "\u201cAnd if one year the maze wins?\u201d",
+    "Vane picked the brass box back up. Click, click, open. \u201cThen it will have been a perfect game,\u201d she said, \u201cand I will finally have met my equal. Would you like to see the door?\u201d",
+    "Tomas looked at his notebook, at the chapel's long shadows, at the small, satisfied woman across the table — and discovered that some invitations frighten you precisely because part of you wants to say yes."
+  ],
+  notes:[],
+  questions:[
+    {q:"The setting — a chapel &ldquo;filled to the rafters with locks&rdquo; (paragraph 1) — establishes an atmosphere of",
+     opts:["religious devotion.",
+           "cheerful, harmless clutter.",
+           "eccentric obsession.",
+           "financial ruin."],
+     a:2, ex:"A sacred space converted to house thousands of locks signals a single consuming passion — strange, total, and a little unsettling."},
+    {q:"The detail that Vane works the brass puzzle box &ldquo;without once looking at her hands&rdquo; (paragraph 2) emphasizes her",
+     opts:["nervousness during interviews.",
+           "failing eyesight.",
+           "boredom with Tomas's questions.",
+           "total, effortless mastery of her craft."],
+     a:3, ex:"Solving by pure touch while holding a conversation shows skill so complete it no longer requires attention."},
+    {q:"Vane's statement that &ldquo;A game you cannot lose is not a game. It is a chore with applause&rdquo; (paragraph 5) expresses her belief that",
+     opts:["success without genuine challenge is empty.",
+           "audiences ruin serious competition.",
+           "games should be played in private.",
+           "chores deserve more respect than games."],
+     a:0, ex:"Guaranteed victory removes the contest; what remains is repetitive work — applauded, but joyless."},
+    {q:"The speaker of paragraph 5 would most likely agree with which of the following statements?",
+     opts:["Perfection is desirable, since nothing can be better than it.",
+           "Perfection should be celebrated more loudly.",
+           "Perfection is undesirable, since it leaves nothing left to strive for.",
+           "Perfection is a goal every craftsman eventually reaches."],
+     a:2, ex:"For Vane, unbeatable skill ended the fun: with nothing left to lose or strive against, the craft became a chore."},
+    {q:"Vane destroyed the only copy of the maze's logic (paragraph 7) in order to",
+     opts:["protect the design from thieves.",
+           "guarantee that the maze could genuinely surprise her.",
+           "hide evidence of poor workmanship.",
+           "increase the property's value."],
+     a:1, ex:"An opponent she can look up is no opponent. Destroying the logic makes the maze truly unknown — even to its maker."},
+    {q:"Vane answers with &ldquo;the satisfaction of a craftsman admiring a joint&rdquo; (paragraph 9), suggesting she regards her own ignorance of the maze as",
+     opts:["an embarrassing mistake.",
+           "a temporary problem she will fix.",
+           "her finest piece of workmanship.",
+           "a danger she deeply regrets."],
+     a:2, ex:"&ldquo;Including me. Especially me&rdquo; is delivered with pride — the unknowability is the feature she is proudest of."},
+    {q:"Vane's comparison of the maze to a mountain (paragraph 11) primarily serves to",
+     opts:["reframe her dangerous obsession as a recognized form of sport.",
+           "describe the height of the east wing.",
+           "suggest that she once climbed mountains.",
+           "warn Tomas away from hiking alone."],
+     a:0, ex:"If deadly mountains count as sport, she argues, so should her maze — the comparison normalizes the risk she has chosen."},
+    {q:"The phrase &ldquo;a perfect game&rdquo; in paragraph 13 is paradoxical because it describes",
+     opts:["a game played without any rules.",
+           "a victory that no one watches.",
+           "a game Vane has already won many times.",
+           "an outcome in which losing would prove she finally found her equal."],
+     a:3, ex:"For a champion bored by winning, defeat is the one result that would make the game complete — perfection through loss."},
+    {q:"Over the course of the passage, Tomas's attitude shifts from",
+     opts:["professional curiosity to uneasy fascination.",
+           "boredom to amusement.",
+           "admiration to contempt.",
+           "fear to relief."],
+     a:0, ex:"He begins taking notes like any interview; by the end, his pen stops, and the final line finds him both frightened and drawn in."},
+    {q:"The final sentence suggests that some invitations are frightening because",
+     opts:["they are always dangerous to accept.",
+           "part of the invited person is tempted to say yes.",
+           "they can never be politely refused.",
+           "they come from strangers."],
+     a:1, ex:"The fear comes from within: Tomas recognizes in himself a flicker of the same hunger that built the maze."}
+  ]
+},
+{
+  n:17, title:"The Reward", byline:"an AE original story", kind:"prose",
+  lines:[
+    "Ana got home at noon with the violin case in one hand and the story crowding up her throat like a crowd at a narrow door.",
+    "Her mother listened to all of it at the kitchen table — the pawnshop with the crooked awning, the three afternoons of watching from the laundromat across the street, the phone call to Officer Duval, the clerk's face when the serial number matched. She did not interrupt once, which Ana knew, from twelve years of experience, was not the same thing as approval.",
+    "\u201cSo the school gets its violin back,\u201d her mother said at last, \u201cand Ms. Ferreira gets her best student back onstage for the spring concert. And what did it cost?\u201d",
+    "\u201cNothing! That's the whole point. The reward is two hundred dollars, and I didn't spend a cent —\u201d",
+    "\u201cI didn't ask what you spent. I asked what it cost.\u201d",
+    "Ana opened her mouth, and closed it.",
+    "\u201cThree afternoons across the street from a man you believed to be a thief,\u201d her mother said, in the level voice she used for arithmetic. \u201cAlone. Telling no one. If the clerk had noticed a girl in the laundromat window — noticed her three days running —\u201d She stopped, and let the sentence finish itself in the quiet.",
+    "\u201cBut he didn't notice.\u201d",
+    "\u201cNo. And so today we get to have this conversation, instead of a very different one.\u201d Her mother reached over and unlatched the case. The violin lay in its velvet like something asleep. \u201cDo you know what I see when I look at this? Four strings, a bridge, a body of maple. Every part of it can be replaced. When a string snaps, Ms. Ferreira does not hold a funeral. She opens a drawer.\u201d",
+    "\u201cI'm not a violin string, Mama.\u201d",
+    "\u201cNo,\u201d her mother agreed. \u201cThere is no drawer that holds another you. That is the entire speech, and you have just given it to yourself.\u201d",
+    "Ana looked at the instrument for a while. \u201cThe reward's real, though,\u201d she said finally. \u201cTwo hundred dollars.\u201d",
+    "\u201cIt is. And you earned it, and we will bank it, and I am\u201d — her mother paused to choose the word with the care of a woman selecting fruit — \u201cimpressed. Impressed, and informed. Because next time, Ana, you will bring your cleverness to me first, and we will be reckless together, sensibly.\u201d",
+    "Ana laughed, mostly from relief, and the crowd of the story finally fit through the door."
+  ],
+  notes:[],
+  questions:[
+    {q:"The simile of the story &ldquo;crowding up her throat like a crowd at a narrow door&rdquo; (paragraph 1) conveys Ana's",
+     opts:["fear of being punished.",
+           "eagerness to tell everything at once.",
+           "difficulty breathing after running home.",
+           "reluctance to speak about the pawnshop."],
+     a:1, ex:"Too much story, too small an opening — every detail is shoving to get out first. Ana is bursting to tell it."},
+    {q:"Ana knows her mother's silence &ldquo;was not the same thing as approval&rdquo; (paragraph 2), suggesting the mother is",
+     opts:["listening fully while withholding her judgment.",
+           "not interested in the story.",
+           "too shocked to speak.",
+           "secretly proud but hiding it completely."],
+     a:0, ex:"She hears every detail without interrupting — attention, not agreement. The verdict is still to come."},
+    {q:"The mother's correction — &ldquo;I didn't ask what you spent. I asked what it cost&rdquo; (paragraph 5) — draws a distinction between",
+     opts:["the reward and the school's expenses.",
+           "the violin's price and its musical value.",
+           "money and the risk Ana took.",
+           "spending and saving wisely."],
+     a:2, ex:"Ana answers in dollars; her mother is counting something else — three afternoons of danger, taken alone."},
+    {q:"The unfinished sentence in paragraph 7 (&ldquo;noticed her three days running —&rdquo;) is effective because",
+     opts:["the mother forgets what she meant to say.",
+           "Ana interrupts her mother mid-thought.",
+           "the implied danger is more powerful left unstated.",
+           "it shows the mother's confusion."],
+     a:2, ex:"The sentence &ldquo;finishes itself in the quiet&rdquo; — both of them, and the reader, complete the thought no one wants spoken."},
+    {q:"The mother's point about the violin's replaceable parts (paragraph 9) prepares her central message that",
+     opts:["musical instruments should be insured.",
+           "a person, unlike an object, cannot be replaced.",
+           "the school should buy a newer violin.",
+           "velvet cases protect instruments poorly."],
+     a:1, ex:"Strings come from a drawer; daughters do not. The replaceable object sets up the irreplaceable person."},
+    {q:"When the mother says &ldquo;you have just given it to yourself&rdquo; (paragraph 11), she means that",
+     opts:["Ana has already punished herself enough.",
+           "Ana has already spent the reward money.",
+           "the speech was too long to finish.",
+           "Ana reached the lesson's conclusion on her own."],
+     a:3, ex:"&ldquo;I'm not a violin string&rdquo; is the whole lesson in Ana's own words — the mother only had to lead her to it."},
+    {q:"The mother choosing her word &ldquo;with the care of a woman selecting fruit&rdquo; (paragraph 13) suggests she",
+     opts:["weighs her praise deliberately and honestly.",
+           "would rather be out shopping.",
+           "cannot remember the right word.",
+           "is avoiding Ana's question."],
+     a:0, ex:"You squeeze fruit before buying it; she tests &ldquo;impressed&rdquo; the same way, making sure it is exactly true before offering it."},
+    {q:"The phrase &ldquo;we will be reckless together, sensibly&rdquo; (paragraph 13) blends humor with",
+     opts:["a promise that Ana's adventures are over forever.",
+           "a condition: Ana's daring must now include her mother's guidance.",
+           "an admission that the mother was wrong.",
+           "a plan for dividing the reward money."],
+     a:1, ex:"The contradiction is the point: courage is welcome, but from now on it comes with a partner."},
+    {q:"Which question does the passage leave unanswered?",
+     opts:["Was the school's violin recovered?",
+           "How long did Ana watch the pawnshop?",
+           "What will happen to the reward money?",
+           "Why was the violin stolen in the first place?"],
+     a:3, ex:"The recovery, the three afternoons, and banking the reward are all stated; the thief's motive never is."},
+    {q:"The central theme of the passage is best stated as",
+     opts:["rewards should always be shared with family.",
+           "adventures always end badly for children.",
+           "a person's life and future are worth more than any prize.",
+           "the police should handle every problem alone."],
+     a:2, ex:"The mother's whole argument — strings from a drawer, no drawer holding another Ana — weighs a life against a prize and finds no contest."}
+  ]
+}
+];
+
+renderTOC();
+updateTop();
+</script>
+</body>
+</html>
